@@ -1,1 +1,1886 @@
-placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTA: Global Translation Adventures</title>
+    <!-- Load Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- Root Variables for Both Modes --- */
+        :root {
+            /* Dark Mode Defaults (as before) */
+            --primary-red: #E03D4D;
+            --background-deep: #1A1A1A;
+            --card-dark: #2C2C2C;
+            --text-light: #F9FAFB;
+            --text-secondary: #AAAAAA;
+            --success-green: #38A169;
+            --danger-red: #E53E3E;
+        }
+
+        /* --- LIGHT MODE Variables --- */
+        body.light-mode {
+            --background-deep: #F3F4F6; /* Light Gray Background */
+            --card-dark: #FFFFFF; /* White Cards */
+            --text-light: #1F2937; /* Dark Text */
+            --text-secondary: #6B7280;
+            --primary-red: #E03D4D; /* Red remains constant */
+            --success-green: #10B981; /* Brighter success green */
+            --danger-red: #EF4444; /* Brighter danger red */
+        }
+        
+        /* --- GLOBAL BASE STYLES --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-deep);
+            color: var(--text-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Main Game Screen Card Styling */
+        .game-screen {
+            max-width: 1000px;
+            min-height: 80vh;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--card-dark);
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Lighter shadow for light mode */
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        body.light-mode .game-screen {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E5E7EB; /* Light border in light mode */
+        }
+
+
+        /* Custom Button Styling (Primary Action - Red/Green) */
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px var(--danger-red); 
+        }
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+        .btn-primary:active {
+            box-shadow: 0 1px var(--danger-red);
+            transform: translateY(3px);
+        }
+
+        /* Secondary/Navigation Button Styling (Dark Gray in dark mode, light gray in light mode) */
+        .btn-secondary {
+            background-color: #3C3C3C; 
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px #222222;
+        }
+        body.light-mode .btn-secondary {
+            background-color: #E5E7EB; 
+            color: var(--text-light);
+            box-shadow: 0 4px #D1D5DB;
+        }
+        .btn-secondary:hover {
+            background-color: #4A4A4A;
+        }
+        body.light-mode .btn-secondary:hover {
+            background-color: #D1D5DB;
+        }
+        .btn-secondary:active {
+            box-shadow: 0 1px #222222;
+            transform: translateY(3px);
+        }
+        body.light-mode .btn-secondary:active {
+            box-shadow: 0 1px #D1D5DB;
+        }
+        
+        /* NEW: Highlight the Feedback button on the Title Page */
+        #quickFeedbackButton {
+            border: 3px solid var(--primary-red);
+            box-shadow: 0 4px var(--danger-red);
+        }
+        body.light-mode #quickFeedbackButton {
+            border: 3px solid var(--primary-red);
+            box-shadow: 0 4px var(--danger-red);
+        }
+
+
+        /* Options/Phrase Button Styling */
+        .option-btn {
+            background-color: #222222;
+            color: var(--text-light);
+            padding: 1.5rem;
+            min-height: 120px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border 0.2s;
+            border: 3px solid #444444; /* Initial dark border */
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        body.light-mode .option-btn {
+            background-color: #F9FAFB;
+            border: 3px solid #D1D5DB; 
+            color: var(--text-light);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .option-btn:hover {
+            border-color: #666666;
+        }
+        body.light-mode .option-btn:hover {
+            border-color: #A0AEC0;
+        }
+        .option-btn .phrase-main {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        .option-btn .phrase-sub {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Feedback Styles */
+        .option-btn.correct {
+            background-color: var(--success-green) !important; 
+            border-color: #276749 !important;
+            color: white !important;
+            animation: pulse-green 0.5s 3;
+        }
+        .option-btn.incorrect {
+            background-color: var(--danger-red) !important;
+            border-color: #9B2C2C !important;
+            color: white !important;
+        }
+
+        /* Destination Card Styling */
+        .dest-card {
+            background-color: #222222;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        body.light-mode .dest-card {
+            background-color: #F3F4F6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .dest-card:hover:not([disabled]) {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+        body.light-mode .dest-card:hover:not([disabled]) {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .dest-card-code {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 0.25rem;
+        }
+        .dest-card.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .dest-card.active-dest {
+            border: 3px solid var(--primary-red);
+        }
+        
+        /* Modal Animation */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(56, 161, 105, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0); }
+        }
+
+        /* Settings Toggle Switch (General) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px; /* Standard width */
+            height: 34px; /* Standard height */
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-red);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-red);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* New Floating Nav Style */
+        .quick-access-btn {
+            background-color: #4A4A4A;
+            color: var(--text-light);
+            padding: 1rem;
+            font-size: 1.5rem;
+            border-radius: 50%;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        body.light-mode .quick-access-btn {
+            background-color: #E5E7EB;
+            color: #1A1A1A;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .quick-access-btn:hover {
+            background-color: #666666;
+            transform: scale(1.05);
+        }
+        body.light-mode .quick-access-btn:hover {
+            background-color: #D1D5DB;
+        }
+
+        /* NEW: Pill style for the Feedback button (not used in current layout but kept for style reference) */
+        .quick-access-pill {
+            width: auto; 
+            height: auto; 
+            padding: 0.75rem 1rem; 
+            border-radius: 9999px; 
+            font-size: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Keep shadow consistency */
+        }
+        /* --- FIREBASE SECRETS BLUR/VISIBILITY STYLES --- */
+        .blurred {
+            filter: blur(4px);
+            transition: filter 0.3s;
+        }
+        .visible {
+            filter: blur(0);
+        }
+    </style>
+</head>
+<body class="dark-mode"> <!-- Changed default to dark-mode based on images -->
+    <div id="app" class="text-center p-4">
+        <!-- HIDDEN by default to clean up the main page -->
+        <p id="authStatus" class="text-sm text-gray-400 mb-2 hidden"></p> 
+        <div id="gameScreens">
+            
+            <!-- ============================================== -->
+            <!-- 0. LOGIN SCREEN (MODIFIED) -->
+            <!-- ============================================== -->
+            <div id="loginScreen" class="game-screen max-w-sm mx-auto p-8 border-t-8 border-red-500">
+                <h1 class="text-5xl font-black mb-2 text-red-500 tracking-wide">GTA</h1>
+                <h2 class="text-2xl font-light mb-8" style="color: var(--text-secondary)">Traveler Access</h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="authEmail" class="text-left block text-sm font-medium mb-1" style="color: var(--text-light)">Email Address</label>
+                        <input type="email" id="authEmail" placeholder="Enter your email" required
+                               class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    </div>
+                    <div>
+                        <label for="authPassword" class="text-left block text-sm font-medium mb-1" style="color: var(--text-light)">Password</label>
+                        <input type="password" id="authPassword" placeholder="Enter your password (min 6 chars)" required
+                               class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    </div>
+
+                    <p id="authError" class="text-sm font-medium text-red-400 min-h-[1.5em]"></p>
+                    
+                    <button id="signInBtn" class="btn-primary w-full mt-2" style="background-color: var(--primary-red); box-shadow: 0 4px var(--danger-red);">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Log In
+                    </button>
+                    
+                    <!-- NEW LINK: Switches to the dedicated sign up screen -->
+                    <div class="mt-4 text-sm text-center">
+                        <p style="color: var(--text-secondary)">Don't have an account? 
+                            <button id="goToSignUpLink" class="text-red-500 hover:text-red-400 font-bold underline" type="button" data-target="signUpScreen">
+                                Create New Account
+                            </button>
+                        </p>
+                    </div>
+                    <!-- The log out button remains hidden unless Firebase auth state detects a user -->
+                    <button id="signOutBtn" class="btn-secondary w-full mt-4 hidden" style="background-color: #555; box-shadow: 0 4px #444;">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 0.5. CREATE NEW ACCOUNT SCREEN (UPDATED with Name field) -->
+            <!-- ============================================== -->
+            <div id="signUpScreen" class="game-screen max-w-sm mx-auto p-8 border-t-8 border-yellow-500 hidden">
+                <h1 class="text-5xl font-black mb-2 text-red-500 tracking-wide">GTA</h1>
+                <h2 class="text-2xl font-light mb-8" style="color: var(--text-secondary)">New Traveler Registration</h2>
+
+                <div class="space-y-4">
+                    <!-- NEW: Traveler Name Field -->
+                    <div>
+                        <label for="signUpName" class="text-left block text-sm font-medium mb-1" style="color: var(--text-light)">Traveler Name</label>
+                        <input type="text" id="signUpName" placeholder="Enter your traveler name" required
+                               class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    </div>
+                    
+                    <div>
+                        <label for="signUpEmail" class="text-left block text-sm font-medium mb-1" style="color: var(--text-light)">Email Address</label>
+                        <!-- Note the unique ID: signUpEmail -->
+                        <input type="email" id="signUpEmail" placeholder="Enter your email" required
+                               class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    </div>
+                    <div>
+                        <label for="signUpPassword" class="text-left block text-sm font-medium mb-1" style="color: var(--text-light)">Password</label>
+                        <!-- Note the unique ID: signUpPassword -->
+                        <input type="password" id="signUpPassword" placeholder="Enter a secure password (min 6 chars)" required
+                               class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    </div>
+
+                    <p id="signUpError" class="text-sm font-medium text-red-400 min-h-[1.5em]"></p>
+                    
+                    <button id="executeSignUpBtn" class="btn-primary w-full mt-2" style="background-color: var(--success-green); box-shadow: 0 4px #276749;">
+                        <i class="fas fa-check-circle mr-2"></i> Register and Play
+                    </button>
+                    
+                    <div class="mt-4 text-sm text-center">
+                        <p style="color: var(--text-secondary)">Already have an account? 
+                            <button id="goToLoginLink" class="text-red-500 hover:text-red-400 font-bold underline" type="button" data-target="loginScreen">
+                                Log In
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 1. TITLE PAGE (Now hidden by default, shown after login) -->
+            <!-- ============================================== -->
+            <div id="titlePage" class="game-screen hidden">
+                <!-- NEW LOGOUT BUTTON AT THE TOP RIGHT -->
+                <div class="flex justify-end mb-4">
+                    <!-- Event listener attached in JS -->
+                    <button id="titlePageSignOutBtn" class="quick-access-btn bg-red-600 hover:bg-red-500 text-white hidden" style="box-shadow: 0 4px var(--danger-red);">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+
+                <h1 class="text-7xl font-black mb-2 text-red-500 tracking-wide">GTA</h1>
+                <h2 class="text-3xl font-light mb-4" style="color: var(--text-secondary)">Global Translation Adventures</h2>
+                
+                <h3 class="text-4xl font-bold mb-8" style="color: var(--text-light)">Welcome, Traveler!</h3>
+                <p class="mb-12 max-w-lg mx-auto" style="color: var(--text-secondary)">Your language journey awaits across 6 countries and 30 thrilling adventures.</p>
+                
+                <div class="space-y-4 max-w-sm mx-auto">
+                    <!-- Main Start Button is Red -->
+                    <button id="startButton" class="btn-primary w-full"><i class="fas fa-play mr-2"></i> Start Your Journey</button>
+                    <!-- Other buttons are Secondary/Dark -->
+                    <button id="profileButton" class="btn-secondary w-full"><i class="fas fa-user-circle mr-2"></i> Profile</button>
+                    <button id="progressButton" class="btn-secondary w-full"><i class="fas fa-chart-line mr-2"></i> Progress Tracker</button>
+                    <button id="settingsButton" class="btn-secondary w-full"><i class="fas fa-cog mr-2"></i> Settings</button>
+                    
+                    <!-- NEW: Feedback button moved to Title Page -->
+                    <button id="quickFeedbackButton" class="btn-secondary w-full" data-target="feedbackScreen">
+                        <i class="fas fa-comment mr-2"></i> Leave Your Feedback Here
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. DESTINATION SELECTION SCREEN -->
+            <!-- ============================================== -->
+            <div id="destinationScreen" class="game-screen hidden">
+                <div class="text-left mb-6">
+                    <button class="text-lg" data-target="titlePage" style="color: var(--text-secondary)">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Title Screen
+                    </button>
+                </div>
+                
+                <h2 class="text-4xl font-bold mb-2 text-red-500 text-left">Select Your Destination</h2>
+                <p class="mb-8 text-left" style="color: var(--text-secondary)">Master a country's adventures to unlock the next destination and earn a rank up!</p>
+                
+                <div id="destinationList" class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <!-- Destination cards will be rendered here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 3. ADVENTURE SELECTION SCREEN (image_4b4fe7.png) -->
+            <div id="adventureScreen" class="game-screen hidden">
+                <div class="flex justify-between items-center mb-6 text-lg">
+                    <button class="hover:text-red-500" data-target="destinationScreen" style="color: var(--text-secondary)">
+                           <i class="fas fa-arrow-left mr-2"></i> Back to Country Selection
+                    </button>
+                    <button id="viewProgressButton" class="text-green-500 hover:text-green-400" data-target="progressScreen">
+                        View Progress Tracker <i class="fas fa-angle-right ml-1"></i>
+                    </button>
+                </div>
+                
+                <h2 id="adventureTitle" class="text-4xl font-bold mb-8 text-yellow-400 text-left">Destination: Japan (Traveler Rank)</h2>
+                
+                <div id="adventureList" class="space-y-4 max-w-4xl mx-auto text-left">
+                    <!-- Adventure list items will be rendered here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 4. CORE GAMEPLAY SCREEN (image_4ba523.jpg) -->
+            <!-- ============================================== -->
+            <div id="gameScene" class="game-screen hidden">
+                <div class="text-left mb-6">
+                    <button class="text-lg" data-target="adventureScreen" style="color: var(--text-secondary)">
+                        <i class="fas fa-arrow-left mr-2"></i> Exit Scenario
+                    </button>
+                </div>
+
+                <h3 id="sceneAdventureName" class="text-3xl font-bold mb-1 text-yellow-400 text-left">Tokyo Arrival: Check-In & Transport</h3>
+                <h4 id="sceneHeader" class="text-base mb-6 text-left" style="color: var(--text-secondary)">Country: Japan | Adventure 1</h4>
+                
+                <p id="scenePrompt" class="text-xl font-medium mb-6 text-left" style="color: var(--text-light)">You've just landed in Tokyo and need to find your luggage. What do you say to the airport staff?</p>
+                
+                <div id="sceneContainer" class="max-w-4xl mx-auto p-6 rounded-xl shadow-2xl border-4" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                    <img id="sceneImage" src="" alt="Current Scene" class="w-full h-auto rounded-lg mb-6 border-2" style="border-color: var(--text-secondary)">
+                    
+                    <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Phrase cards will be injected here -->
+                    </div>
+                </div>
+                
+                <!-- NEW CONTAINER FOR TRANSLATIONS BELOW THE CARDS -->
+                <div id="translationDisplayContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mt-2 min-h-[50px]">
+                    <!-- Translation text fields will be injected here by renderScene() -->
+                </div>
+
+                <div id="feedbackMessage" class="mt-6 text-2xl font-bold transition-opacity duration-300 opacity-0 min-h-[40px]"></div>
+                
+                <!-- Continue Button shown after correct answer -->
+                <button id="continueButton" class="btn-primary w-full max-w-lg mt-6 hidden" onclick="nextScene()" style="background-color: var(--primary-red); box-shadow: 0 4px var(--danger-red);">
+                    Continue Touring (1/5 Scenes)
+                </button>
+
+                <!-- This button matches the 'COMPLETE ADVENTURE AND EARN BADGE' style (image_4ba5a0.png) -->
+                <button id="completeAdventureButton" class="btn-primary w-full max-w-lg mt-6 hidden" onclick="completeAdventure()" style="background-color: var(--success-green); box-shadow: 0 4px #276749;">
+                    COMPLETE ADVENTURE AND EARN BADGE
+                </button>
+            </div>
+            
+            <!-- ============================================== -->
+            <!-- 5. PROGRESS TRACKER SCREEN (image_4b5326.png) -->
+            <!-- ============================================== -->
+            <div id="progressScreen" class="game-screen hidden">
+                <div class="text-left mb-6">
+                    <button class="text-lg" data-target="titlePage" style="color: var(--text-secondary)">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Title Screen
+                    </button>
+                </div>
+                
+                <div class="p-6 rounded-lg mb-8 shadow-inner border-t-4 border-b-4 border-red-500" style="background-color: var(--background-deep)">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-4xl font-extrabold" id="rankCountryName" style="color: var(--text-light)">Japan (Traveler)</h3>
+                        <span class="text-6xl font-black text-red-500" id="rankCountryCode">JP</span>
+                    </div>
+                    <p class="text-sm font-light mb-2" style="color: var(--text-secondary)">Traveler ID: <span id="progressUserId" class="font-mono text-xs text-yellow-400">Loading...</span></p>
+                    <div class="text-lg font-semibold text-green-500 mt-4">
+                        <span id="adventuresCompleted">0</span> / 5 Adventures Completed
+                    </div>
+                    <div class="text-sm mt-2" style="color: var(--text-secondary)">
+                        Next Rank: France (Globetrotter)
+                    </div>
+                </div>
+                
+                <h3 class="text-2xl font-bold mb-6 text-left" style="color: var(--text-light)">All 30 Badges Earned</h3>
+                
+                <div id="badgeContainer" class="flex flex-wrap justify-start p-4 rounded-lg max-w-4xl mx-auto border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                    <!-- 30 Badge boxes will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 6. SETTINGS SCREEN -->
+            <!-- ============================================== -->
+            <div id="settingsScreen" class="game-screen hidden">
+                <h2 class="text-4xl font-bold mb-8">Settings</h2>
+                <div class="max-w-xl mx-auto space-y-6">
+
+                    <!-- Theme Toggle -->
+                    <div class="flex justify-between items-center p-4 rounded-lg border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                        <span class="text-xl font-medium" style="color: var(--text-light)">Light / Dark Mode</span>
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <!-- Background Music Slider -->
+                    <div class="p-4 rounded-lg border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xl font-medium" style="color: var(--text-light)">Background Music</span>
+                            <!-- Music Mute Toggle -->
+                            <label class="switch">
+                                <input type="checkbox" id="musicMuteToggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="range" id="musicVolume" min="0" max="1" value="0.5" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg">
+                    </div>
+
+                    <!-- Audio Volume Slider -->
+                    <div class="p-4 rounded-lg border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xl font-medium" style="color: var(--text-light)">Audio Pronunciation Volume</span>
+                             <!-- Audio Mute Toggle -->
+                            <label class="switch">
+                                <input type="checkbox" id="audioMuteToggle">
+                            <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <input type="range" id="audioVolume" min="0" max="1" value="1.0" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg">
+                    </div>
+
+                </div>
+                <button class="btn-secondary mt-12" data-target="titlePage"><i class="fas fa-arrow-left mr-2"></i> Back to Title</button>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 7. PROFILE SCREEN -->
+            <!-- ============================================== -->
+            <div id="profileScreen" class="game-screen hidden">
+                 <h2 class="text-4xl font-bold mb-8">Traveler Profile</h2>
+                <div class="max-w-sm mx-auto space-y-4">
+                    <div class="text-lg font-light mb-4">
+                        <p style="color: var(--text-light)">User ID: <span id="profileUserId" class="font-mono text-sm text-yellow-400">Loading...</span></p>
+                    </div>
+                    <input type="text" id="travelerNameInput" placeholder="Traveler Name" class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    <input type="email" id="emailInput" placeholder="Email stay up to date for future releases" class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" style="background-color: var(--background-deep)">
+                    <button id="saveProfileButton" class="btn-primary w-full bg-green-600 hover:bg-green-500 shadow-green-700">Save Profile</button>
+                    <!-- Log Out button visibility is controlled by JS when onAuthStateChanged fires -->
+                    <button id="profileSignOutBtn" class="btn-secondary w-full" data-target="loginScreen"><i class="fas fa-sign-out-alt mr-2"></i> Log Out</button> 
+                </div>
+                
+                <!-- REMOVED: FIREBASE CONFIG DISPLAY SECTION -->
+
+                <button class="btn-secondary mt-8" data-target="titlePage"><i class="fas fa-arrow-left mr-2"></i> Back to Title</button>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 8. FEEDBACK SCREEN (NEW) -->
+            <!-- ============================================== -->
+            <div id="feedbackScreen" class="game-screen hidden">
+                <h2 class="text-4xl font-bold mb-8 text-red-500">Traveler Feedback</h2>
+                <div class="max-w-xl mx-auto space-y-6">
+                    
+                    <div class="p-6 rounded-lg border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
+                        <h3 class="text-xl font-medium mb-4" style="color: var(--text-light)">Share your thoughts on GTA!</h3>
+                        <textarea id="feedbackInput" rows="6" placeholder="Tell us what you love, what you hate, or report a bug..."
+                                  class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" 
+                                  style="background-color: var(--card-dark); resize: none;"></textarea>
+                        
+                        <p id="feedbackMessageDisplay" class="text-sm font-medium text-red-400 min-h-[1.5em] mt-2"></p>
+                        
+                        <button id="submitFeedbackButton" class="btn-primary w-full mt-4 bg-green-600 hover:bg-green-500 shadow-green-700">
+                            <i class="fas fa-paper-plane mr-2"></i> Submit Feedback
+                        </button>
+                    </div>
+
+                </div>
+                <button class="btn-secondary mt-12" data-target="titlePage"><i class="fas fa-arrow-left mr-2"></i> Back to Title</button>
+            </div>
+            <!-- ============================================== -->
+
+
+            <!-- Modal (Matches the dark theme) -->
+            <div id="badgeModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50">
+                <div class="p-10 rounded-xl shadow-2xl text-center max-w-md w-11/12 transform transition-transform duration-300 scale-100 border-t-8 border-yellow-500" style="background-color: var(--card-dark); color: var(--text-light)">
+                    <i class="fas fa-trophy text-7xl text-yellow-500 mb-6 animate-bounce"></i>
+                    <h3 class="text-4xl font-extrabold mb-2 text-red-400">Adventure Complete!</h3>
+                    
+                    <!-- REPLACED OLD BUTTON WITH NEW ACTION BUTTONS -->
+                    <p id="modalLevelMessage" class="text-lg mb-8 font-light"></p>
+                    <div id="modalActionButtons" class="space-y-3">
+                        <button id="modalReplayButton" class="btn-primary bg-yellow-600 hover:bg-yellow-500 shadow-yellow-700 w-full">
+                            <i class="fas fa-redo mr-2"></i> Replay Adventure (Practice)
+                        </button>
+                        <button id="modalRevisitButton" class="btn-secondary w-full">
+                            <i class="fas fa-map-marker-alt mr-2"></i> Select New Adventure
+                        </button>
+                    </div>
+                    <!-- Close button remains for non-adventure complete uses (e.g., construction notice) -->
+                    <button id="closeBadgeModal" class="btn-primary bg-red-500 hover:bg-red-400 shadow-red-700 hidden">Continue</button> 
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- ============================================== -->
+    <!-- QUICK ACCESS FLOATING NAV - BOTTOM RIGHT (Settings/Home) -->
+    <!-- ============================================== -->
+    <div id="quickAccessNav" class="fixed bottom-4 right-4 space-y-3 flex flex-col hidden z-40">
+        <!-- Settings Toggle -->
+        <button id="quickSettingsButton" class="quick-access-btn" data-target="settingsScreen">
+            <i class="fas fa-cog"></i>
+        </button>
+        <!-- Home Button -->
+        <button id="quickHomeButton" class="quick-access-btn" data-target="titlePage">
+            <i class="fas fa-home"></i>
+        </button>
+    </div>
+
+    
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // UPDATED: Added email/password functions and signOut
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // ADDED addDoc import
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Set Firebase Log Level to Debug
+        setLogLevel('Debug');
+
+        // Global Firebase variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // --- START USER MODIFICATION ZONE ---
+        // Your Firebase configuration should be pasted here before deployment.
+        // UPDATED with GTA-02 credentials for project gta-01-a2898
+        const userFirebaseConfig = {
+            "apiKey": "AIzaSyAvcf96el58dO-urZsoEExe0CSjsRPpFg0",
+            "authDomain": "gta-01-a2898.firebaseapp.com",
+            "projectId": "gta-01-a2898",
+            "storageBucket": "gta-01-a2898.firebasestorage.app",
+            "messagingSenderId": "936826561839",
+            "appId": "1:936826561839:web:edf9fba8976fecd4d32dda"
+        }; 
+        // --- END USER MODIFICATION ZONE ---
+        
+        // This handles both the environment config (if available) or the user's manual config
+        const firebaseConfig = Object.keys(userFirebaseConfig).length > 0 ? userFirebaseConfig : (typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {});
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let isFirebaseReady = false; // NEW: Flag to ensure auth calls only happen after initialization
+
+        let userId = null;
+        let userName = "Traveler";
+        let userProgress = {}; // Stores all game state: { badges: [], profile: {}, settings: {} }
+        
+        // --- AUDIO PLAYERS ---
+        const BACKGROUND_MUSIC_URL = './audio/petals-on-the-water-full-version-japanese-fusion-lofi-392739.mp3';
+        const backgroundMusic = new Audio(BACKGROUND_MUSIC_URL);
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0; // Start muted, volume controlled by settings
+        
+        // FIX 1: Global variable to track the currently playing phrase audio
+        let currentAudioPlayer = null; 
+
+        // --- AUTH UI Elements ---
+        const authEmailInput = document.getElementById('authEmail');
+        const authPasswordInput = document.getElementById('authPassword');
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn'); // Login screen sign out button
+        const profileSignOutBtn = document.getElementById('profileSignOutBtn'); // Profile screen sign out button
+        const titlePageSignOutBtn = document.getElementById('titlePageSignOutBtn'); // NEW: Title screen sign out button
+        const authErrorEl = document.getElementById('authError'); // Login screen error message
+
+        // NEW SIGN UP ELEMENTS (UPDATED)
+        const signUpNameInput = document.getElementById('signUpName'); // NEW
+        const signUpEmailInput = document.getElementById('signUpEmail');
+        const signUpPasswordInput = document.getElementById('signUpPassword');
+        const executeSignUpBtn = document.getElementById('executeSignUpBtn');
+        const signUpErrorEl = document.getElementById('signUpError'); // Sign up screen error message
+        const goToSignUpLink = document.getElementById('goToSignUpLink');
+        const goToLoginLink = document.getElementById('goToLoginLink');
+        
+        // NEW MODAL BUTTONS (Defined here for scope)
+        const modalEl = document.getElementById('badgeModal');
+        const modalRevisitButton = document.getElementById('modalRevisitButton');
+        const modalReplayButton = document.getElementById('modalReplayButton');
+        const closeBadgeModalButton = document.getElementById('closeBadgeModal');
+        
+        // NEW FEEDBACK ELEMENTS
+        const feedbackInput = document.getElementById('feedbackInput');
+        const submitFeedbackButton = document.getElementById('submitFeedbackButton');
+        const feedbackMessageDisplay = document.getElementById('feedbackMessageDisplay');
+        
+        // NEW NAV ELEMENTS (bottomCenterNav removed)
+        const quickAccessNav = document.getElementById('quickAccessNav'); // Bottom Right (Settings/Home/Feedback)
+
+
+        // --- GAME STATE ---
+        let currentDestinationId = 'japan';
+        let currentAdventureIndex = 0;
+        let currentSceneIndex = 0;
+        let correctOption = null;
+        let isProcessing = false;
+        let isReviewMode = false; // NEW: Global state to track review mode
+
+        // --- GAME DATA STRUCTURE (The Core Content) ---
+        // Refactored Japanese data to separate Romanization and Translation for UX goal.
+        const GAME_DATA = {
+            japan: {
+                name: "Japan",
+                code: "JP",
+                language: "Japanese",
+                locked: false,
+                color: "text-red-500", // Tailwind class for text color
+                adventures: [
+                    {
+                        id: "discovery", // Updated ID to match image_4b4fe7.png
+                        name: "Discovery",
+                        badgeName: "Sakura Badge",
+                        rank: "Traveler",
+                        scenes: [
+                            // Scene 1: direction to baggage (Correct: 荷物はどこですか？)
+                            {
+                                image: "https://i.imgur.com/TzGpTBn.jpeg",
+                                prompt: "You've just landed in Tokyo and need to find your luggage. What do you say to the airport staff?",
+                                options: [
+                                    { phrase: "これはいくらですか？", romanization: "Kore wa ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false },
+                                    { phrase: "荷物はどこですか？", romanization: "Nimotsu wa doko desu ka?", translation: "Where is the baggage?", audio: "nimotsu.mp3", isCorrect: true },
+                                    { phrase: "トイレはどこですか？", romanization: "Toire wa doko desu ka?", translation: "Where is the toilet?", audio: "taxistand.mp3", isCorrect: false }
+                                ]
+                            },
+                            // Scene 2: direction to hotel (Correct: ホテルまでお願いします)
+                            {
+                                image: "https://i.imgur.com/dYv5NiI.jpeg",
+                                prompt: "You're at the taxi stand. Tell the driver you need to go to the hotel.",
+                                options: [
+                                    { phrase: "荷物はどこですか？", romanization: "Nimotsu wa doko desu ka?", translation: "Where is the baggage?", audio: "nimotsu.mp3", isCorrect: false },
+                                    { phrase: "タクシー乗り場は？", romanization: "Takushii noriba wa?", translation: "Where is the taxi stand?", audio: "taxistand.mp3", isCorrect: false },
+                                    { phrase: "ホテルまでお願いします。", romanization: "Hoteru made onegaishimasu.", translation: "Please take me to my hotel.", audio: "hoteru.mp3", isCorrect: true }
+                                ]
+                            },
+                            // Scene 3: check in (Correct: チェックインをお願いします)
+                            {
+                                image: "https://i.imgur.com/7O21k67.jpeg",
+                                prompt: "You've arrived! Tell the front desk you are here to check in.",
+                                options: [
+                                    { phrase: "いくらですか？", romanization: "Ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false },
+                                    { phrase: "チェックインをお願いします。", romanization: "Chekkuin o onegaishimasu.", translation: "I am here to check in.", audio: "checkin.mp3", isCorrect: true },
+                                    { phrase: "予約があります。", romanization: "Yoyaku ga arimasu.", translation: "I have a reservation.", audio: "reservation.mp3", isCorrect: false }
+                                ]
+                            },
+                            // Scene 4: I am hungry (Correct: お腹が空きました)
+                            {
+                                image: "https://i.imgur.com/W1oNh8L.jpeg",
+                                prompt: "You are finally in your room, but you're starving. Tell the concierge you are hungry.",
+                                options: [
+                                    { phrase: "レストランは？", romanization: "Resutoran wa?", translation: "Where is the restaurant?", audio: "restaurant.mp3", isCorrect: false },
+                                    { phrase: "お腹が空きました。", romanization: "Onaka ga sukimashita.", translation: "I am hungry.", audio: "hungry.mp3", isCorrect: true },
+                                    { phrase: "チェックをお願いします。", romanization: "Chekku o onegaishimasu。", translation: "Check, please.", audio: "checkplease.mp3", isCorrect: false }
+                                ]
+                            },
+                            // Scene 5: I want ramen (Correct: ラーメンをお願いします)
+                            {
+                                image: "https://i.imgur.com/xHASNyg.jpeg",
+                                prompt: "You found a ramen shop! Order a bowl of ramen.",
+                                options: [
+                                    { phrase: "ラーメンをお願いします。", romanization: "Raamen o onegaishimasu。", translation: "Ramen, please.", audio: "ramen.mp3", isCorrect: true },
+                                    { phrase: "元気ですか？", romanization: "Genki desu ka?", translation: "How are you?", audio: "genki.mp3", isCorrect: false },
+                                    { phrase: "いくらですか？", romanization: "Ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false }
+                                ]
+                            },
+                        ]
+                    },
+                    // Placeholder for remaining 4 adventures
+                    { id: "exploration", name: "Exploration", badgeName: "Fuji Badge", rank: "Explorer", scenes: [] },
+                    { id: "challenge", name: "Challenge", badgeName: "Samurai Badge", rank: "Challenger", scenes: [] },
+                    { id: "expedition", name: "Expedition", badgeName: "Ninja Badge", rank: "Expeditionist", scenes: [] },
+                    { id: "summit", name: "Summit", badgeName: "Mastery Badge", rank: "Master", scenes: [] },
+                ]
+            },
+            // Start of user's requested countries
+            italy: { name: "Italy", code: "IT", language: "Italian", locked: true, color: "text-green-500", adventures: [] },
+            france: { name: "France", code: "FR", language: "French", locked: true, color: "text-blue-500", adventures: [] },
+            mexico: { name: "Mexico", code: "MX", language: "Spanish", locked: true, color: "text-yellow-500", adventures: [] },
+            germany: { name: "Germany", code: "DE", language: "German", locked: true, color: "text-indigo-500", adventures: [] },
+            korean: { name: "Korean", code: "KR", language: "Korean", locked: true, color: "text-pink-500", adventures: [] },
+        };
+        
+        const audioPath = (filename) => `./audio/${filename}`; 
+        
+        
+        // --- AUTHENTICATION FUNCTIONS (MODIFIED to use new input IDs) ---
+
+        // Helper to display friendly error messages for login
+        const displayAuthError = (message) => {
+            authErrorEl.textContent = message;
+        };
+
+        // Helper to display friendly error messages for sign up
+        const displaySignUpError = (message) => {
+            signUpErrorEl.textContent = message;
+        };
+
+        const handleSignIn = async () => {
+            // *** FIX: Guard against execution before Firebase is ready ***
+            if (!isFirebaseReady) {
+                displayAuthError("Authentication service is not ready. Please wait a moment and try again.");
+                console.error("Firebase is not ready.");
+                return;
+            }
+            // *** END FIX ***
+
+            displayAuthError(''); // Clear errors
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || password.length < 6) {
+                displayAuthError("Please enter a valid email and a password (min 6 characters).");
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged will handle the screen switch
+            } catch (error) {
+                console.error("Login Error:", error.code);
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    displayAuthError("Invalid email or password.");
+                } else {
+                    displayAuthError(`Login failed: ${error.message}`);
+                }
+            }
+        };
+
+        const handleSignUp = async () => {
+            // *** FIX: Guard against execution before Firebase is ready ***
+            if (!isFirebaseReady) {
+                displaySignUpError("Authentication service is not ready. Please wait a moment and try again.");
+                console.error("Firebase is not ready.");
+                return;
+            }
+            // *** END FIX ***
+            
+            displaySignUpError(''); // Clear errors
+            // NEW: Get name input
+            const name = signUpNameInput.value.trim();
+            const email = signUpEmailInput.value;
+            const password = signUpPasswordInput.value;
+
+            if (!email || password.length < 6) {
+                displaySignUpError("Please enter a valid email and a password (min 6 characters).");
+                return;
+            }
+            // Simple check for name
+            const displayName = name || "Traveler";
+
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // *** FIX START: Ensure userProgress is initialized with defaults before saving the profile. ***
+                userProgress = {
+                    badges: [],
+                    profile: { name: displayName, email: userCredential.user.email || "" },
+                    settings: { theme: 'dark-mode', musicVolume: 0.2, audioVolume: 1.0, musicMuted: false, audioMuted: false },
+                };
+                saveUserProgress();
+                // *** FIX END ***
+                
+                // onAuthStateChanged will handle the screen switch and subsequent progress load
+            } catch (error) {
+                console.error("Sign Up Error:", error.code);
+                if (error.code === 'auth/email-already-in-use') {
+                    displaySignUpError("This email is already registered. Please log in instead.");
+                } else if (error.code === 'auth/weak-password') {
+                    displaySignUpError("The password is too weak (min 6 characters).");
+                } else {
+                    displaySignUpError(`Sign up failed: ${error.message}`);
+                }
+            }
+        };
+
+        // MODIFIED: Added success feedback to prevent potential unhandled promise error on inline click
+        const handleSignOut = async () => {
+            // *** FIX: Guard against execution before Firebase is ready ***
+            if (!isFirebaseReady) {
+                console.warn("Firebase is not ready, cannot sign out.");
+                return;
+            }
+            // *** END FIX ***
+
+            try {
+                // Show immediate feedback to the user on the current screen (Title or Profile)
+                showFeedback("Signed Out Successfully!", 'correct'); 
+                
+                // Wait briefly for the feedback to show before signing out and forcing screen transition
+                await new Promise(resolve => setTimeout(resolve, 500)); 
+
+                await signOut(auth);
+                // Clear inputs for security
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+                signUpNameInput.value = ''; // NEW: Clear name input
+                signUpEmailInput.value = '';
+                signUpPasswordInput.value = '';
+                // onAuthStateChanged will handle the screen switch to 'loginScreen'
+            } catch (error) {
+                console.error("Logout Error:", error);
+                // Fallback display error on the current screen if Firebase signOut fails
+                showFeedback(`Logout failed: ${error.message}`, 'incorrect');
+            }
+        };
+
+
+        // --- FIREBASE AND AUTHENTICATION SETUP (MODIFIED) ---
+
+        async function initFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.warn("Firebase config is missing. Running in local mode without persistent progress saving.");
+                    document.getElementById('authStatus').textContent = `Data Persistence: Disabled (Local Mode)`;
+                    return; // Exit here if config is missing but allow the rest of the game to run
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app); // This is where the 'auth' object is assigned
+                
+                isFirebaseReady = true; // Set flag only after auth is successfully defined
+
+                const authStatusEl = document.getElementById('authStatus');
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User is signed in (Email/Password or Custom Token). Go to Title Screen and load data.
+                        userId = user.uid;
+                        authStatusEl.textContent = `Signed in as: ${user.email || user.uid.substring(0, 8) + '...'}`;
+                        await loadUserProgress();
+                        switchScreen('titlePage');
+                        
+                        // Show log out button on the Title Page
+                        titlePageSignOutBtn.classList.remove('hidden');
+                        
+                    } else {
+                        // User is signed out. Show login page.
+                        userId = null;
+                        authStatusEl.textContent = `Signed out. Please log in or create an account.`;
+                        switchScreen('loginScreen');
+                        
+                        // Hide log out button on the Title Page
+                        titlePageSignOutBtn.classList.add('hidden');
+                    }
+                });
+
+                // Original anonymous/custom token logic removed in favor of explicit login flow
+                if (initialAuthToken && Object.keys(userFirebaseConfig).length === 0) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                }
+            } catch (error) {
+                // Only catch real runtime errors after Firebase initialization attempt
+                console.error("Firebase initialization failed:", error);
+                document.getElementById('authStatus').textContent = `Authentication Error: ${error.message}`;
+            }
+        }
+
+        // FIX: Reverted to the path that should work with the proper security rule for a single progress document.
+        // Path: /artifacts/{appId}/users/{userId}/progress/gta_progress
+        const getProgressDocRef = (uid) => doc(db, `artifacts/${appId}/users/${uid}/progress`, 'gta_progress'); // <--- CORRECTED PATH
+
+        async function loadUserProgress() {
+            // Only attempt to load/save if Firebase is initialized (i.e., if 'db' is defined)
+            if (!db) return; 
+
+            const progressRef = getProgressDocRef(userId);
+
+            onSnapshot(progressRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    userProgress = docSnap.data();
+                } else {
+                    // *** FIX: Added robustness here. If doc doesn't exist (new user/first load), 
+                    // ensure userProgress is a complete object before rendering UI.
+                    userProgress = {
+                        badges: [], // e.g., ["japan-discovery"]
+                        profile: { name: "Traveler", email: auth.currentUser ? auth.currentUser.email || "" : "" },
+                        settings: { theme: 'dark-mode', musicVolume: 0.2, audioVolume: 1.0, musicMuted: false, audioMuted: false },
+                    };
+                    saveUserProgress(); 
+                }
+                renderUI();
+            }, (error) => {
+                // If you see this error, you MUST update your Firestore Security Rules.
+                console.error("Error listening to progress: If this persists after login, please ensure your Firestore Security Rules are updated.", error);
+            });
+        }
+
+        async function saveUserProgress() {
+            if (!userId || !db) { // Check for 'db' to ensure Firebase is running
+                console.warn("Cannot save progress: User not authenticated or Firebase disabled.");
+                return;
+            }
+            const progressRef = getProgressDocRef(userId);
+            try {
+                await setDoc(progressRef, userProgress, { merge: true });
+            } catch (error) {
+                console.error("Error saving progress:", error);
+            }
+        }
+        
+        // --- FEEDBACK LOGIC (NEW) ---
+        async function submitFeedback() {
+            if (!isFirebaseReady || !userId) {
+                feedbackMessageDisplay.textContent = "Error: You must be logged in to submit feedback.";
+                feedbackMessageDisplay.classList.remove('text-red-400', 'text-green-400', 'text-yellow-400');
+                feedbackMessageDisplay.classList.add('text-red-400');
+                return;
+            }
+
+            const feedbackText = feedbackInput.value.trim();
+
+            if (feedbackText.length < 10) {
+                feedbackMessageDisplay.textContent = "Please provide a bit more detail (min 10 characters).";
+                feedbackMessageDisplay.classList.remove('text-red-400', 'text-green-400', 'text-yellow-400');
+                feedbackMessageDisplay.classList.add('text-red-400');
+                return;
+            }
+
+            feedbackMessageDisplay.textContent = "Submitting...";
+            feedbackMessageDisplay.classList.remove('text-red-400', 'text-green-400', 'text-yellow-400');
+            feedbackMessageDisplay.classList.add('text-yellow-400');
+
+            try {
+                // Use addDoc to create a new document in the dedicated feedback collection
+                const feedbackCollectionRef = collection(db, `artifacts/${appId}/feedback`);
+                await addDoc(feedbackCollectionRef, {
+                    userId: userId,
+                    userName: userProgress.profile.name || auth.currentUser.email || 'Anonymous',
+                    feedback: feedbackText,
+                    timestamp: new Date().toISOString()
+                });
+
+                feedbackMessageDisplay.textContent = "Thank you! Your feedback has been successfully submitted.";
+                feedbackMessageDisplay.classList.remove('text-red-400', 'text-yellow-400');
+                feedbackMessageDisplay.classList.add('text-green-400');
+                feedbackInput.value = ''; // Clear the input field
+                
+            } catch (error) {
+                console.error("Firebase Feedback Submission Error:", error);
+                feedbackMessageDisplay.textContent = `Submission Failed: ${error.message}`;
+                feedbackMessageDisplay.classList.remove('text-yellow-400', 'text-green-400');
+                feedbackMessageDisplay.classList.add('text-red-400');
+            }
+        }
+        
+        // --- SCREEN NAVIGATION ---
+
+        function switchScreen(targetId) {
+            const screens = document.querySelectorAll('.game-screen');
+            screens.forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            document.getElementById(targetId).classList.remove('hidden');
+
+            // Control Quick Access Nav visibility (MODIFIED)
+            if (targetId === 'titlePage' || targetId === 'loginScreen' || targetId === 'signUpScreen') {
+                quickAccessNav.classList.add('hidden');
+            } else {
+                quickAccessNav.classList.remove('hidden');
+            }
+            
+            // Clear errors on navigation away from auth screens
+            if (targetId !== 'loginScreen') displayAuthError('');
+            if (targetId !== 'signUpScreen') displaySignUpError('');
+            
+            // Clear feedback status on leaving the feedback screen
+            if (targetId !== 'feedbackScreen') {
+                 feedbackMessageDisplay.textContent = '';
+                 feedbackInput.value = '';
+            }
+
+
+            if (targetId === 'destinationScreen') {
+                renderDestinationScreen();
+            } else if (targetId === 'progressScreen') {
+                renderProgressTracker();
+            } else if (targetId === 'settingsScreen') {
+                applySettings(); 
+            } else if (targetId === 'profileScreen') {
+                 renderProfileScreen();
+            }
+        }
+
+        // --- GAME LOGIC ---
+
+        function renderDestinationScreen() {
+            const listEl = document.getElementById('destinationList');
+            listEl.innerHTML = '';
+            
+            Object.entries(GAME_DATA).forEach(([id, dest]) => {
+                const isCompleted = dest.adventures.length > 0 && dest.adventures.every(a => userProgress.badges.includes(`${id}-${a.id}`));
+                const isLocked = dest.locked && id !== 'japan'; // Japan is always unlocked for now
+
+                const button = document.createElement('button');
+                button.dataset.dest = id;
+                button.classList = `dest-card text-white ${dest.color}`;
+
+                // Structure for the destination card (image_4b4fac.png)
+                const code = `<div class="dest-card-code ${dest.color}">${dest.code}</div>`;
+                const name = `<div class="text-xl font-bold">${dest.name}</div>`;
+                let status = '';
+
+                if (isLocked) {
+                    button.classList.add('locked');
+                    button.disabled = true;
+                    status = `<div class="text-xs font-semibold text-gray-500 mt-1">LOCKED</div>`;
+                } else {
+                    button.classList.add('active-dest');
+                    button.onclick = () => renderAdventureScreen(id);
+                    status = `<div class="text-xs font-semibold text-gray-500 mt-1">Traveler</div>`; // Placeholder rank
+                }
+
+                button.innerHTML = `${code}${name}${status}`;
+                listEl.appendChild(button);
+            });
+        }
+
+        function renderAdventureScreen(destId) {
+            currentDestinationId = destId;
+            const destData = GAME_DATA[destId];
+            const currentRank = destData.adventures[0] ? destData.adventures[0].rank : "Traveler"; // Use first adventure's rank
+
+            document.getElementById('adventureTitle').innerHTML = 
+                `<span class="text-yellow-400">Destination: ${destData.name}</span> (${currentRank} Rank)`;
+
+            const listEl = document.getElementById('adventureList');
+            listEl.innerHTML = '';
+            
+            let previousAdventureCompleted = true; // Tracks sequential completion for locking
+
+            destData.adventures.forEach((adventure, index) => {
+                const adventureId = `${destId}-${adventure.id}`;
+                const isCompleted = userProgress.badges.includes(adventureId);
+                const isLocked = !previousAdventureCompleted && !isCompleted;
+                
+                const listItem = document.createElement('div');
+                listItem.classList = 'p-4 flex justify-between items-center rounded-lg';
+                
+                if (isCompleted) {
+                    // *** MODIFIED: Add button for Revisit under completed status ***
+                    listItem.classList.remove('justify-between', 'items-center');
+                    listItem.classList.add('flex-col', 'items-start', 'bg-green-800', 'text-white', 'border', 'border-green-600');
+                    listItem.innerHTML = `
+                        <div class="flex justify-between items-center w-full mb-2">
+                            <div class="font-bold text-xl">${adventure.name}</div>
+                            <div class="text-sm font-semibold text-green-300">
+                                <i class="fas fa-check-circle mr-1"></i> Completed
+                            </div>
+                        </div>
+                        <button class="btn-secondary py-1 px-3 text-base bg-green-700 hover:bg-green-600 shadow-none" onclick="startAdventure(${index})">
+                            <i class="fas fa-redo mr-2"></i> Revisit Adventure (Review Mode)
+                        </button>
+                    `;
+                    // *** END MODIFIED ***
+
+                } else if (isLocked) {
+                    listItem.classList.add('bg-gray-700', 'text-gray-400');
+                    listItem.innerHTML = `
+                        <!-- SIMPLIFIED TEXT: Only show Adventure Name -->
+                        <div class="font-bold">${adventure.name}</div>
+                        <div class="text-sm">Locked: Complete previous adventure first</div>
+                    `;
+                } else {
+                    // This adventure is unlocked/available
+                    const hasContent = adventure.scenes && adventure.scenes.length > 0;
+                    
+                    listItem.classList.add('bg-gray-800', 'text-white', 'border', 'border-gray-700');
+                    
+                    if (hasContent) {
+                        // Adventure has content and is ready to start
+                        let buttonText = isCompleted ? 'Revisit Adventure' : 'Start Adventure'; // NEW TEXT CHANGE
+                        listItem.innerHTML = `
+                            <div class="font-bold">${adventure.name}</div>
+                            <button class="btn-primary py-2 px-4 text-base shadow-none" onclick="startAdventure(${index})">
+                                ${buttonText}
+                            </button>
+                        `;
+                    } else {
+                        // Adventure is unlocked but has no content (Under Construction)
+                        listItem.innerHTML = `
+                            <div class="font-bold">${adventure.name}</div>
+                            <button class="btn-secondary py-2 px-4 text-base shadow-none bg-yellow-600 hover:bg-yellow-700 text-white" onclick="startAdventure(${index})">
+                                Under Construction
+                            </button>
+                        `;
+                    }
+                }
+                
+                if (!isCompleted) {
+                    previousAdventureCompleted = false; // Next adventure is locked if this one isn't done
+                }
+
+                listEl.appendChild(listItem);
+            });
+            switchScreen('adventureScreen');
+        }
+
+        function startAdventure(adventureIndex) {
+            currentAdventureIndex = adventureIndex;
+            const dest = GAME_DATA[currentDestinationId];
+            const adventure = dest.adventures[currentAdventureIndex];
+            const adventureId = `${currentDestinationId}-${adventure.id}`;
+            const isCompleted = userProgress.badges.includes(adventureId);
+
+            // NEW: Set Review Mode State
+            if (isCompleted) {
+                isReviewMode = true;
+                showFeedback(`Starting ${adventure.name} in Review Mode. No progress will be saved.`, 'correct');
+            } else {
+                isReviewMode = false;
+            }
+            
+            // CHECK 1: If the adventure has no content (empty scenes array), show the message.
+            if (!adventure.scenes || adventure.scenes.length === 0) {
+                   // Use the modal (which is better than alert()) to show the "Under Construction" message
+                   modalEl.querySelector('h3').textContent = "Under Construction";
+                   document.getElementById('modalLevelMessage').textContent = `This adventure, ${adventure.name}, is currently under construction. Please check back soon!`;
+                   
+                   // Display only the "Continue" (Close) button for construction message
+                   modalReplayButton.classList.add('hidden');
+                   modalRevisitButton.classList.add('hidden');
+                   closeBadgeModalButton.classList.remove('hidden');
+                   closeBadgeModalButton.textContent = "Close";
+                   closeBadgeModalButton.classList.remove('bg-red-500', 'shadow-red-700');
+                   closeBadgeModalButton.classList.add('bg-gray-500', 'hover:bg-gray-600', 'shadow-gray-700');
+
+                   modalEl.classList.remove('hidden');
+                   return;
+            }
+
+            // CHECK 2: If the adventure has content, start the game.
+            currentSceneIndex = 0;
+            switchScreen('gameScene');
+            renderScene();
+        }
+        
+        function renderScene() {
+            const dest = GAME_DATA[currentDestinationId];
+            const adventure = dest.adventures[currentAdventureIndex];
+            const scene = adventure.scenes[currentSceneIndex];
+            
+            // Update Headers (image_4b52b2.jpg style)
+            document.getElementById('sceneAdventureName').textContent = `${adventure.name} Scenario`;
+            document.getElementById('sceneHeader').textContent = `Country: ${dest.name} | Adventure ${currentAdventureIndex + 1}`;
+            document.getElementById('sceneImage').src = scene.image;
+            document.getElementById('sceneImage').onerror = () => document.getElementById('sceneImage').src = 'https://placehold.co/600x400/222222/F9FAFB?text=Image+Not+Found';
+            document.getElementById('scenePrompt').textContent = scene.prompt;
+            
+            // Hide all buttons initially
+            document.getElementById('continueButton').classList.add('hidden');
+            document.getElementById('completeAdventureButton').classList.add('hidden');
+            
+            const optionsEl = document.getElementById('optionsContainer');
+            optionsEl.innerHTML = '';
+
+            const translationDisplayEl = document.getElementById('translationDisplayContainer');
+            translationDisplayEl.innerHTML = ''; // CLEAR PREVIOUS TRANSLATIONS
+            
+            scene.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList = 'option-btn';
+                
+                // --- PHRASE CARD CONTENT: PHRASE AND ROMANIZATION ONLY ---
+                button.innerHTML = `
+                    <div class="phrase-main">${option.phrase}</div>
+                    <div class="phrase-sub">${option.romanization}</div>
+                `;
+                // Store data needed for checkAnswer in the button's dataset
+                button.dataset.index = index;
+                button.dataset.isCorrect = option.isCorrect; // Store correctness
+                button.dataset.translation = option.translation; // Store translation to reveal later
+                
+                // Hover for Audio Pronunciation
+                button.addEventListener('mouseenter', () => playAudio(audioPath(option.audio)));
+
+                // Click to Check Answer
+                button.addEventListener('click', (e) => checkAnswer(e.currentTarget, option.isCorrect));
+
+                optionsEl.appendChild(button);
+
+                // --- CREATE SEPARATE TRANSLATION DISPLAY ELEMENT BELOW ---
+                const translationEl = document.createElement('div');
+                translationEl.classList.add('text-center', 'text-lg', 'font-bold', 'opacity-0', 'transition-opacity', 'duration-500');
+                translationEl.dataset.index = index; // Link to the button by index
+                translationEl.id = `translation-${index}`;
+                translationDisplayEl.appendChild(translationEl);
+            });
+            correctOption = scene.options.find(opt => opt.isCorrect);
+            document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = false);
+            isProcessing = false;
+        }
+        
+        function nextScene() {
+             const dest = GAME_DATA[currentDestinationId];
+             const adventure = dest.adventures[currentAdventureIndex];
+
+             currentSceneIndex++;
+             if (currentSceneIndex < adventure.scenes.length) {
+                // Move to next scene
+                document.getElementById('continueButton').textContent = `Continue Touring (${currentSceneIndex + 1}/${adventure.scenes.length} Scenes)`;
+                renderScene();
+             } else {
+                // Last scene, show complete button
+                document.getElementById('continueButton').classList.add('hidden');
+                document.getElementById('completeAdventureButton').classList.remove('hidden');
+             }
+        }
+
+        function playAudio(path) {
+            const audioSettings = userProgress.settings || { audioVolume: 1.0, audioMuted: false };
+            if (audioSettings.audioMuted) return;
+
+            // FIX 1: Stop previous audio if it's playing
+            if (currentAudioPlayer && !currentAudioPlayer.paused) {
+                currentAudioPlayer.pause();
+                currentAudioPlayer.currentTime = 0;
+            }
+
+            const audio = new Audio(path);
+            audio.volume = audioSettings.audioVolume;
+            currentAudioPlayer = audio; // Set global tracker
+
+            audio.play().catch(e => console.warn("Audio playback failed (file not found or user gesture required):", e));
+        }
+        
+        // --- BACKGROUND MUSIC CONTROL ---
+        function setBackgroundMusicState(volume, isMuted) {
+            backgroundMusic.volume = isMuted ? 0 : volume;
+            if (backgroundMusic.paused) {
+                // Attempt to play only if unmuted, handling the browser's required user gesture
+                if (!isMuted) {
+                    backgroundMusic.play().catch(e => console.log("Music auto-play prevented by browser. User must interact first.", e));
+                }
+            } else {
+                if (isMuted) {
+                    // Mute immediately if already playing
+                    backgroundMusic.volume = 0;
+                } else {
+                     backgroundMusic.volume = volume;
+                }
+            }
+        }
+
+        // FIX 2: Function to attempt playing music after a user interaction, with a retry mechanism
+        function attemptMusicPlay() {
+            const settings = userProgress.settings || { musicVolume: 0.0, musicMuted: true };
+            // ******* USING DEFAULT MUSIC VOLUME 0.2 HERE *******
+            if (settings.musicMuted || !backgroundMusic.paused) return; // Don't play if muted or already playing
+
+            backgroundMusic.volume = settings.musicVolume;
+            backgroundMusic.play()
+                .then(() => {
+                    console.log("Background music started successfully.");
+                })
+                .catch(e => {
+                    console.warn("Music play blocked, retrying in 500ms. Error:", e);
+                    // Retry once after a short delay, which often works after a page change
+                    setTimeout(() => {
+                         backgroundMusic.play().catch(e => console.warn("Music play failed after retry.", e));
+                    }, 500);
+                });
+        }
+
+        function showFeedback(message, type) {
+            const feedbackEl = document.getElementById('feedbackMessage');
+            feedbackEl.textContent = message;
+            feedbackEl.classList.remove('text-green-400', 'text-red-400', 'opacity-0');
+            feedbackEl.classList.add(type === 'correct' ? 'text-green-400' : 'text-red-400');
+            
+            setTimeout(() => feedbackEl.classList.remove('opacity-0'), 10);
+            setTimeout(() => feedbackEl.classList.add('opacity-0'), 1500);
+        }
+        
+        // NEW helper function to reveal the English translation on a specific button
+        function revealTranslation(button) {
+            const index = button.dataset.index;
+            const translation = button.dataset.translation;
+            const translationEl = document.getElementById(`translation-${index}`);
+            
+            if (translationEl) {
+                translationEl.textContent = translation;
+                translationEl.classList.remove('opacity-0'); // Make visible
+                translationEl.classList.add('text-yellow-400'); 
+            }
+        }
+
+        // NEW helper function to reveal translations on all cards
+        function revealAllTranslations() {
+            document.querySelectorAll('.option-btn').forEach(button => {
+                revealTranslation(button);
+            });
+        }
+
+        function checkAnswer(button, isCorrect) {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            document.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                // Correct Answer Logic
+                button.classList.add('correct');
+                revealAllTranslations(); // REVEAL ALL TRANSLATIONS ON CORRECT GUESS
+
+                if (isReviewMode) { // NEW CONDITIONAL FEEDBACK
+                     showFeedback("Correct! (Review Mode)", 'correct');
+                } else {
+                     showFeedback("Correct! You successfully communicated the phrase.", 'correct');
+                }
+                
+                // Show continue button
+                const dest = GAME_DATA[currentDestinationId];
+                const adventure = dest.adventures[currentAdventureIndex];
+                
+                if (currentSceneIndex < adventure.scenes.length - 1) {
+                    document.getElementById('continueButton').textContent = `Continue Touring (${currentSceneIndex + 1}/${adventure.scenes.length} Scenes)`;
+                    document.getElementById('continueButton').classList.remove('hidden');
+                } else {
+                    // It's the last scene
+                    document.getElementById('completeAdventureButton').classList.remove('hidden');
+                }
+                
+                isProcessing = false;
+
+            } else {
+                // Incorrect Answer Logic
+                button.classList.add('incorrect');
+                revealTranslation(button); // ONLY REVEAL THE TRANSLATION OF THE INCORRECT CARD
+
+                showFeedback("Incorrect. Try again!", 'incorrect');
+                
+                setTimeout(() => {
+                    button.classList.remove('incorrect');
+                    
+                    // HIDE THE INCORRECT TRANSLATION HINT AFTER THE PAUSE
+                    document.getElementById(`translation-${button.dataset.index}`).classList.add('opacity-0');
+                    
+                    // Re-enable other buttons, leaving the incorrect one disabled for the scene
+                    document.querySelectorAll('.option-btn').forEach(btn => {
+                        if (btn !== button) btn.disabled = false;
+                    });
+                    
+                    isProcessing = false;
+                }, 1500); // Wait 1.5 seconds before allowing re-attempt
+            }
+        }
+
+        function completeAdventure() {
+            const dest = GAME_DATA[currentDestinationId];
+            const adventure = dest.adventures[currentAdventureIndex];
+            const badgeId = `${currentDestinationId}-${adventure.id}`;
+            let levelUp = false;
+
+            // *** NEW: Conditional Save based on Review Mode ***
+            if (!isReviewMode) {
+                if (!userProgress.badges.includes(badgeId)) {
+                    userProgress.badges.push(badgeId);
+                    const currentBadgeCount = userProgress.badges.length;
+                    
+                    if (currentBadgeCount % 5 === 0) {
+                        levelUp = true;
+                        // Logic to unlock the next country would go here based on badge count
+                    }
+                    saveUserProgress();
+                }
+            }
+            // *** END Conditional Save (No badge saving if isReviewMode is true) ***
+            
+            // Hide continue/complete buttons from game scene
+            document.getElementById('continueButton').classList.add('hidden');
+            document.getElementById('completeAdventureButton').classList.add('hidden');
+
+            // Show Badge Modal (Updated text for review mode)
+            modalEl.querySelector('h3').textContent = "Adventure Complete!";
+            
+            // Hide the single old continue button
+            closeBadgeModalButton.classList.add('hidden');
+
+            if (isReviewMode) {
+                // Show review mode text and style replay button grey
+                document.getElementById('modalLevelMessage').textContent = `Review Complete! You successfully revisited ${adventure.name}. No new badges were earned or progress saved.`;
+                
+                modalReplayButton.classList.remove('bg-yellow-600', 'shadow-yellow-700');
+                modalReplayButton.classList.add('bg-gray-700', 'shadow-gray-900');
+                modalReplayButton.textContent = "Replay (Review Mode)";
+
+            } else {
+                // Show progress text and style replay button yellow
+                document.getElementById('modalLevelMessage').textContent = levelUp 
+                    ? `Congratulations! You leveled up to Level ${Math.floor(userProgress.badges.length / 5) + 1}!` 
+                    : `You earned the ${adventure.badgeName} and now have ${userProgress.badges.length} of 30 mastery badges.`;
+                
+                // Reset buttons for non-review mode complete
+                modalReplayButton.classList.remove('bg-gray-700', 'shadow-gray-900');
+                modalReplayButton.classList.add('bg-yellow-600', 'shadow-yellow-700');
+                modalReplayButton.textContent = "Replay Adventure (Practice)";
+                
+                modalRevisitButton.classList.remove('btn-primary', 'bg-gray-500', 'hover:bg-gray-600', 'shadow-gray-700');
+                modalRevisitButton.classList.add('btn-secondary');
+            }
+            
+            // Ensure replay and revisit buttons are visible
+            modalReplayButton.classList.remove('hidden');
+            modalRevisitButton.classList.remove('hidden');
+
+            // Show the modal
+            modalEl.classList.remove('hidden');
+        }
+
+        // --- PROGRESS TRACKER LOGIC ---
+
+        function renderProgressTracker() {
+            const totalBadges = 30;
+            const currentBadges = userProgress.badges.length;
+            const currentLevel = Math.floor(currentBadges / 5) + 1;
+            
+            document.getElementById('progressUserId').textContent = userId;
+            // Rank Display
+            document.getElementById('rankCountryName').textContent = `${GAME_DATA[currentDestinationId].name} (Traveler)`; // Placeholder rank
+            document.getElementById('rankCountryCode').textContent = GAME_DATA[currentDestinationId].code;
+            document.getElementById('adventuresCompleted').textContent = userProgress.badges.filter(b => b.startsWith(currentDestinationId)).length;
+
+
+            const badgeContainer = document.getElementById('badgeContainer');
+            badgeContainer.innerHTML = '';
+            
+            let badgeIndex = 0;
+            // Iterate through all countries to build the badge grid (image_4b5326.png style)
+            Object.entries(GAME_DATA).forEach(([countryId, country]) => {
+                country.adventures.forEach((adventure, advIndex) => {
+                    const badgeBox = document.createElement('div');
+                    badgeBox.classList = 'dest-card w-[90px] h-[90px] p-2'; // Smaller card for badges
+                    
+                    const badgeId = `${countryId}-${adventure.id}`;
+                    const isEarned = userProgress.badges.includes(badgeId);
+                    
+                    if (isEarned) {
+                         badgeBox.classList.add('bg-green-600', 'border-green-400', 'text-white', 'cursor-pointer');
+                    } else {
+                         badgeBox.classList.remove('active-dest');
+                         badgeBox.classList.add('bg-gray-700', 'border-gray-500', 'text-gray-400');
+                    }
+
+                    badgeBox.innerHTML = `
+                        <div class="text-2xl font-black ${isEarned ? 'text-white' : 'text-gray-500'}">${country.code}</div>
+                        <div class="text-xs mt-1 ${isEarned ? 'text-white' : 'text-gray-400'}">${country.name} ${advIndex + 1}</div>
+                    `;
+                    badgeContainer.appendChild(badgeBox);
+                    badgeIndex++;
+                });
+            });
+            // Fill remaining slots if necessary (only Japan has 5 adventures currently)
+            while (badgeIndex < totalBadges) {
+                const badgeBox = document.createElement('div');
+                badgeBox.classList = 'dest-card w-[90px] h-[90px] p-2 bg-gray-900 border-gray-800 opacity-30';
+                badgeContainer.appendChild(badgeBox);
+                badgeIndex++;
+            }
+        }
+        
+        // --- PROFILE LOGIC ---
+        
+        function renderProfileScreen() {
+            document.getElementById('profileUserId').textContent = userId;
+            const profile = userProgress.profile || { name: "", email: "" };
+            // Ensure the profile screen inputs reflect the saved name
+            document.getElementById('travelerNameInput').value = profile.name || "";
+            document.getElementById('emailInput').value = profile.email || "";
+            
+            // Check if user is logged in via email/password or custom token
+            const user = auth.currentUser;
+            if (user && !user.isAnonymous) {
+                 profileSignOutBtn.classList.remove('hidden');
+            } else {
+                 profileSignOutBtn.classList.add('hidden');
+            }
+
+            // REMOVED: Deployment and Config Keys display logic
+        }
+
+        document.getElementById('saveProfileButton').addEventListener('click', () => {
+             const name = document.getElementById('travelerNameInput').value.trim();
+             const email = document.getElementById('emailInput').value.trim();
+
+             userProgress.profile = { name, email };
+             saveUserProgress();
+             showFeedback("Profile Saved!", 'correct');
+        });
+        
+        // REMOVED: Toggle Config Visibility Listener
+        // document.getElementById('toggleConfigView').addEventListener('click', ...);
+
+
+        // --- SETTINGS LOGIC ---
+
+        function applySettings() {
+            const settings = userProgress.settings || {};
+            
+            // Theme
+            const theme = settings.theme || 'dark-mode';
+            document.body.className = theme;
+            document.getElementById('themeToggle').checked = theme === 'light-mode';
+            
+            // Get Toggles
+            const musicMuteToggle = document.getElementById('musicMuteToggle');
+            const audioMuteToggle = document.getElementById('audioMuteToggle');
+
+            // Music Volume/Mute
+            document.getElementById('musicVolume').value = settings.musicVolume || 0.2;
+            musicMuteToggle.checked = settings.musicMuted || false;
+            setBackgroundMusicState(settings.musicVolume || 0.2, settings.musicMuted || false);
+
+            // Audio Volume/Mute
+            document.getElementById('audioVolume').value = settings.audioVolume || 1.0;
+            audioMuteToggle.checked = settings.audioMuted || false;
+        }
+        
+        // --- EVENT HANDLERS FOR SETTINGS ---
+
+        document.getElementById('themeToggle').addEventListener('change', (e) => {
+            const theme = e.target.checked ? 'light-mode' : 'dark-mode';
+            document.body.className = theme;
+            userProgress.settings.theme = theme;
+            saveUserProgress();
+        });
+
+        // Music Mute Toggle Listener
+        document.getElementById('musicMuteToggle').addEventListener('change', (e) => {
+            const isMuted = e.target.checked;
+            userProgress.settings.musicMuted = isMuted;
+            
+            // If muting via toggle, set volume slider to 0 without saving it as the preferred volume
+            if (isMuted) {
+                setBackgroundMusicState(userProgress.settings.musicVolume, true);
+            } else {
+                // If unmuting, restore volume from settings
+                setBackgroundMusicState(userProgress.settings.musicVolume, false);
+            }
+            saveUserProgress();
+        });
+
+        document.getElementById('musicVolume').addEventListener('input', (e) => {
+            const newVolume = parseFloat(e.target.value);
+            userProgress.settings.musicVolume = newVolume;
+            userProgress.settings.musicMuted = (newVolume === 0);
+            
+            // Update toggle state if volume hits 0 or leaves 0
+            document.getElementById('musicMuteToggle').checked = (newVolume === 0);
+
+            setBackgroundMusicState(newVolume, (newVolume === 0));
+            saveUserProgress();
+        });
+
+        // Audio Mute Toggle Listener
+        document.getElementById('audioMuteToggle').addEventListener('change', (e) => {
+            const isMuted = e.target.checked;
+            userProgress.settings.audioMuted = isMuted;
+
+            // If muting via toggle, set volume slider to 0 without saving it as the preferred volume
+            if (isMuted) {
+                document.getElementById('audioVolume').value = 0;
+            } else {
+                // If unmuting, reset slider to last saved volume (or default 1.0)
+                document.getElementById('audioVolume').value = userProgress.settings.audioVolume || 1.0;
+            }
+            saveUserProgress();
+        });
+
+        document.getElementById('audioVolume').addEventListener('input', (e) => {
+            const newVolume = parseFloat(e.target.value);
+            userProgress.settings.audioVolume = newVolume;
+            userProgress.settings.audioMuted = (newVolume === 0);
+            
+            // Update toggle state if volume hits 0 or leaves 0
+            document.getElementById('audioMuteToggle').checked = (newVolume === 0);
+
+            saveUserProgress();
+        });
+
+
+        // --- INITIALIZATION AND EVENT LISTENERS ---
+
+        function setupEventListeners() {
+            // General button listeners for screen switching
+            
+            // ************ AUTH LISTENERS ************
+            signInBtn.addEventListener('click', handleSignIn);
+            executeSignUpBtn.addEventListener('click', handleSignUp); // New button for actual signup action
+            goToSignUpLink.addEventListener('click', () => switchScreen('signUpScreen')); // New link to switch screens
+            goToLoginLink.addEventListener('click', () => switchScreen('loginScreen')); // New link to switch screens
+
+            // Log Out buttons
+            // Attaching event listeners here instead of inline onclick to properly handle the async promise
+            signOutBtn.addEventListener('click', handleSignOut); 
+            profileSignOutBtn.addEventListener('click', handleSignOut); 
+            titlePageSignOutBtn.addEventListener('click', handleSignOut); 
+            // ****************************************
+
+            // ************ MODIFIED LISTENER ************
+            document.getElementById('startButton').addEventListener('click', () => {
+                // Now calls attemptMusicPlay() which handles retry logic for deployment
+                attemptMusicPlay(); 
+                switchScreen('destinationScreen');
+            });
+            // *******************************************
+            
+            // NEW: Modal action buttons
+            modalRevisitButton.addEventListener('click', () => {
+                modalEl.classList.add('hidden');
+                // Go back to the adventure selection screen
+                renderAdventureScreen(currentDestinationId);
+            });
+
+            modalReplayButton.addEventListener('click', () => {
+                modalEl.classList.add('hidden');
+                // Replay: Start the current adventure again, forcing review mode
+                currentSceneIndex = 0;
+                isReviewMode = true; // Ensure review mode is set when explicitly replaying from modal
+                switchScreen('gameScene');
+                renderScene();
+            });
+
+
+            document.getElementById('profileButton').addEventListener('click', () => switchScreen('profileScreen'));
+            document.getElementById('progressButton').addEventListener('click', () => switchScreen('progressScreen'));
+            document.getElementById('settingsButton').addEventListener('click', () => switchScreen('settingsScreen'));
+            
+            // ************ CRITICAL FIX HERE ************
+            // This button is now only for the "Under Construction" modal exit
+            document.getElementById('closeBadgeModal').addEventListener('click', () => {
+                document.getElementById('badgeModal').classList.add('hidden');
+                // IMPORTANT: When closing the modal, we must explicitly re-render the adventure screen
+                // to force the UI to check the updated userProgress.badges and unlock the next level.
+                renderAdventureScreen(currentDestinationId);
+            });
+            // *******************************************
+            
+            // NEW FEEDBACK BUTTON LISTENER (Now on the Title Page)
+            document.getElementById('quickFeedbackButton').addEventListener('click', (e) => {
+                // Clear any previous status when opening the screen
+                feedbackMessageDisplay.textContent = '';
+                feedbackInput.value = '';
+                switchScreen('feedbackScreen');
+            });
+            submitFeedbackButton.addEventListener('click', submitFeedback);
+            
+            // Expose game functions to global scope for HTML onclicks in dynamically created elements.
+            window.startAdventure = startAdventure;
+            window.nextScene = nextScene;
+            window.completeAdventure = completeAdventure;
+            window.handleSignOut = handleSignOut; // Expose global sign out function
+
+            // Handle all 'Back' buttons and View Progress button
+            document.querySelectorAll('button[data-target]').forEach(button => {
+                // Attach event listeners to all buttons that have data-target defined
+                button.addEventListener('click', (e) => {
+                    const target = e.currentTarget.dataset.target;
+                    // Prevent navigation if the target is an auth screen link, as those are handled separately
+                    if (target !== 'signUpScreen' && target !== 'loginScreen') {
+                        switchScreen(target);
+                    }
+                });
+            });
+            
+            // Handle quick access navigation
+            document.getElementById('quickSettingsButton').addEventListener('click', () => switchScreen('settingsScreen'));
+            document.getElementById('quickHomeButton').addEventListener('click', () => switchScreen('titlePage'));
+        }
+
+        function renderUI() {
+            renderDestinationScreen();
+            renderProgressTracker();
+            applySettings();
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            // FIX 1: Initial music volume set to 0.2 (20%) and not muted
+            userProgress = { 
+                badges: [], 
+                profile: { name: "Traveler", email: "" },
+                settings: { theme: 'dark-mode', musicVolume: 0.2, audioVolume: 1.0, musicMuted: false, audioMuted: false }, 
+            };
+            
+            // FIX 2: Ensure the music volume slider is initially set to 0.2 for the UI
+            const musicVolumeSlider = document.getElementById('musicVolume');
+            if (musicVolumeSlider) {
+                musicVolumeSlider.value = userProgress.settings.musicVolume;
+            }
+            
+            // Initial call to show the login screen while Firebase checks auth state
+            switchScreen('loginScreen');
+
+            setupEventListeners();
+            initFirebase();
+            // The Firebase loadUserProgress/onSnapshot handles renderUI after data is ready.
+        };
+
+    </script>
+</body>
+</html>
