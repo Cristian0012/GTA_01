@@ -562,6 +562,12 @@
             <!-- 6. SETTINGS SCREEN -->
             <!-- ============================================== -->
             <div id="settingsScreen" class="game-screen hidden">
+                <div class="flex justify-end -mt-4 mb-4">
+                    <!-- NEW: Close button for exiting settings quickly -->
+                    <button id="closeSettingsButton" class="text-3xl text-gray-400 hover:text-red-500 transition hidden">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 <h2 class="text-4xl font-bold mb-8">Settings</h2>
                 <div class="max-w-xl mx-auto space-y-6">
 
@@ -601,7 +607,8 @@
                     </div>
 
                 </div>
-                <button class="btn-secondary mt-12" data-target="titlePage"><i class="fas fa-arrow-left mr-2"></i> Back to Title</button>
+                <!-- Added ID to existing button for control -->
+                <button id="settingsBackToTitleButton" class="btn-secondary mt-12" data-target="titlePage"><i class="fas fa-arrow-left mr-2"></i> Back to Title</button>
             </div>
 
             <!-- ============================================== -->
@@ -771,6 +778,10 @@
         // NEW NAV ELEMENTS (bottomCenterNav removed)
         const quickAccessNav = document.getElementById('quickAccessNav'); // Bottom Right (Settings/Home/Feedback)
 
+        // NEW SETTINGS ELEMENTS
+        const closeSettingsButton = document.getElementById('closeSettingsButton'); // NEW
+        const settingsBackToTitleButton = document.getElementById('settingsBackToTitleButton'); // NEW ID FOR EXISTING BUTTON
+
 
         // --- GAME STATE ---
         let currentDestinationId = 'japan';
@@ -779,6 +790,7 @@
         let correctOption = null;
         let isProcessing = false;
         let isReviewMode = false; // NEW: Global state to track review mode
+        let previousScreenId = 'loginScreen'; // NEW: Track where we came from
 
         // --- GAME DATA STRUCTURE (The Core Content) ---
         // Refactored Japanese data to separate Romanization and Translation for UX goal.
@@ -1131,6 +1143,15 @@
         // --- SCREEN NAVIGATION ---
 
         function switchScreen(targetId) {
+            // Capture the current screen ID before hiding it
+            const currentScreen = document.querySelector('.game-screen:not(.hidden)');
+            if (currentScreen) {
+                // Only update previousScreenId if we are navigating away from the Settings screen back to a game state
+                if (currentScreen.id !== 'settingsScreen') {
+                     previousScreenId = currentScreen.id;
+                }
+            }
+
             const screens = document.querySelectorAll('.game-screen');
             screens.forEach(screen => {
                 screen.classList.add('hidden');
@@ -1138,7 +1159,7 @@
             document.getElementById(targetId).classList.remove('hidden');
 
             // Control Quick Access Nav visibility (MODIFIED)
-            if (targetId === 'titlePage' || targetId === 'loginScreen' || targetId === 'signUpScreen') {
+            if (targetId === 'titlePage' || targetId === 'loginScreen' || targetId === 'signUpScreen' || targetId === 'feedbackScreen') {
                 quickAccessNav.classList.add('hidden');
             } else {
                 quickAccessNav.classList.remove('hidden');
@@ -1161,6 +1182,25 @@
                 renderProgressTracker();
             } else if (targetId === 'settingsScreen') {
                 applySettings(); 
+                
+                // --- NEW LOGIC FOR SETTINGS CLOSE BUTTON ---
+                // Show 'X' button if coming from any screen after "Start Journey" (or game/adventure screens)
+                const isInsideGameFlow = 
+                    previousScreenId === 'gameScene' || 
+                    previousScreenId === 'adventureScreen' || 
+                    previousScreenId === 'destinationScreen' ||
+                    previousScreenId === 'progressScreen' || // Also allow quick exit from progress
+                    previousScreenId === 'profileScreen'; // Also allow quick exit from profile
+
+                if (isInsideGameFlow) {
+                    closeSettingsButton.classList.remove('hidden');
+                    settingsBackToTitleButton.classList.add('hidden');
+                } else {
+                    // If coming from title/login/signup/feedback, show 'Back to Title' button.
+                    closeSettingsButton.classList.add('hidden');
+                    settingsBackToTitleButton.classList.remove('hidden');
+                }
+                // --- END NEW LOGIC ---
             } else if (targetId === 'profileScreen') {
                  renderProfileScreen();
             }
@@ -1810,6 +1850,12 @@
             document.getElementById('progressButton').addEventListener('click', () => switchScreen('progressScreen'));
             document.getElementById('settingsButton').addEventListener('click', () => switchScreen('settingsScreen'));
             
+            // NEW: Close Settings button listener
+            closeSettingsButton.addEventListener('click', () => {
+                // Go back to the screen we were on before Settings
+                switchScreen(previousScreenId);
+            });
+
             // ************ CRITICAL FIX HERE ************
             // This button is now only for the "Under Construction" modal exit
             document.getElementById('closeBadgeModal').addEventListener('click', () => {
