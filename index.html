@@ -324,6 +324,123 @@
         .visible {
             filter: blur(0);
         }
+
+        /* ADDED STYLES FOR 3D FLIP EFFECT ON GAME SCENE IMAGE AREA */
+        #sceneFlipperContainer {
+            perspective: 1000px; /* Enable 3D space */
+        }
+        #sceneFlipper {
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        #sceneFlipperContainer.is-flipped #sceneFlipper {
+            transform: rotateY(180deg);
+        }
+        .scene-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .scene-back {
+            transform: rotateY(180deg);
+            background-color: var(--card-dark); /* Use card background for consistency */
+            color: var(--text-light);
+            flex-direction: column;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            overflow: hidden; /* Control overall card back overflow */
+        }
+        /* END ADDED STYLES */
+
+        /* --- STYLES FOR INTERACTIVE REVIEW CARD BACK FACE --- */
+        .segment-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .phrase-segment {
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .segment-romaji {
+            margin-top: 0.1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Dynamic Highlighting States (Simulated by JS setting classes) */
+        .phrase-segment.highlighted {
+            background-color: rgba(255, 255, 255, 0.1); 
+            border: 2px solid; 
+        }
+
+        /* Dynamic Border Colors for Highlighted Segments (Scene 1 default set) */
+        .phrase-segment.baggage { border-color: #f43f5e; } /* Rose */
+        .phrase-segment.particle-wa { border-color: #6b7280; } /* Gray */
+        .phrase-segment.where { border-color: #10b981; } /* Green */
+        .phrase-segment.is { border-color: #8b5cf6; } /* Purple */
+
+        /* NEW SEGMENT COLOR STYLES FOR SCENES 2-5 */
+        .phrase-segment.hotel { border-color: #fbbf24; } /* Amber */
+        .phrase-segment.to-particle { border-color: #3b82f6; } /* Blue */
+        .phrase-segment.request { border-color: #f59e0b; } /* Yellow-Amber */
+        .phrase-segment.checkin-noun { border-color: #ec4899; } /* Pink */
+        .phrase-segment.o-particle { border-color: #06b6d4; } /* Cyan/Sky */
+        .phrase-segment.stomach { border-color: #f97316; } /* Orange */
+        .phrase-segment.ga-particle { border-color: #14b8a6; } /* Teal */
+        .phrase-segment.hungry-verb { border-color: #ef4444; } /* Red */
+        .phrase-segment.ramen-noun { border-color: #84cc16; } /* Lime */
+        .phrase-segment.give-request { border-color: #6366f1; } /* Indigo */
+        
+        /* Color Play Buttons */
+        .review-btn-pill {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-radius: 9999px; /* Pill shape */
+            color: white;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 0.875rem;
+        }
+        .review-btn-pill:hover { filter: brightness(1.1); }
+        .review-btn-pill.rose { background-color: #f43f5e; }
+        .review-btn-pill.gray { background-color: #4b5563; }
+        .review-btn-pill.green { background-color: #10b981; }
+        .review-btn-pill.purple { background-color: #8b5cf6; }
+        .review-btn-pill.full-phrase { background-color: #3b82f6; } /* Blue 500 */
+
+        /* Scrolled Notes Container */
+        #notesContainer {
+            overflow-y: auto;
+            flex-grow: 1; /* Allow it to consume available space */
+            padding-bottom: 0; /* Remove padding from bottom since padding is in the inner div */
+            /* Ensure inner content is managed */
+            display: flex;
+            flex-direction: column;
+        }
+        #reviewNotesList {
+            /* No max-height or overflow on the list itself, let the parent handle it */
+            flex-shrink: 0;
+            padding-top: 0.5rem;
+        }
+
     </style>
 </head>
 <body class="dark-mode"> <!-- Changed default to dark-mode based on images -->
@@ -472,7 +589,7 @@
             <div id="adventureScreen" class="game-screen hidden">
                 <div class="flex justify-between items-center mb-6 text-lg">
                     <button class="hover:text-red-500" data-target="destinationScreen" style="color: var(--text-secondary)">
-                           <i class="fas fa-arrow-left mr-2"></i> Back to Country Selection
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Country Selection
                     </button>
                     <button id="viewProgressButton" class="text-green-500 hover:text-green-400" data-target="progressScreen">
                         View Progress Tracker <i class="fas fa-angle-right ml-1"></i>
@@ -501,23 +618,61 @@
                 
                 <p id="scenePrompt" class="text-xl font-medium mb-6 text-left" style="color: var(--text-light)">You've just landed in Tokyo and need to find your luggage. What do you say to the airport staff?</p>
                 
-                <div id="sceneContainer" class="max-w-4xl mx-auto p-6 rounded-xl shadow-2xl border-4" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
-                    <div class="relative w-full overflow-hidden rounded-lg mb-6 border-2 flex items-center justify-center" style="height: 450px; border-color: var(--text-secondary);">
-    <img id="sceneImage" src="" alt="Current Scene" class="w-full h-full object-cover" style="object-position: center;">
-</div>
-                    
-                    <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Phrase cards will be injected here -->
+                <!-- START FLIPPER -->
+                <div id="sceneFlipperContainer" class="max-w-4xl mx-auto mb-6 relative" style="height: 450px;">
+                    <div id="sceneFlipper" class="w-full h-full relative">
+                        
+                        <!-- FRONT FACE (Context Image) -->
+                        <div id="sceneFront" class="scene-face border-2" style="border-color: var(--text-secondary);">
+                            <img id="sceneImage" src="" alt="Current Scene" class="w-full h-full object-cover" style="object-position: center;">
+                        </div>
+
+                        <!-- BACK FACE (Interactive Review Details) -->
+                        <div id="sceneBack" class="scene-face scene-back border-2 border-red-500 p-8">
+                            
+                            <!-- Visual Breakdown of the Word -->
+                            <div id="reviewSegments" class="flex flex-wrap justify-center gap-x-2 gap-y-4 mb-6 flex-shrink-0">
+                                <!-- Segments injected by JS (Kanji/Kana + Romaji) -->
+                            </div>
+
+                            <!-- Color Button Group Play Buttons -->
+                            <div id="reviewColorButtons" class="flex flex-wrap justify-center gap-2 mb-6 border-b border-gray-700 pb-4 flex-shrink-0">
+                                <!-- Buttons injected by JS -->
+                            </div>
+
+                            <!-- Full Phrase Play Button (RESTORED) -->
+                            <button id="reviewFullPhraseButton" class="review-btn-pill w-full max-w-sm review-btn-pill full-phrase mb-6 flex-shrink-0">
+                                <i class="fas fa-volume-up mr-2"></i> Play Full Phrase
+                            </button>
+
+                            <!-- Review Card: Notes Section - THIS WILL SCROLL -->
+                            <div id="notesContainer" class="p-4 rounded-xl shadow-inner border border-gray-700 bg-black/20 w-full text-left flex-grow overflow-y-auto">
+                                <h3 class="font-bold text-lg text-red-400 mb-2 flex-shrink-0">Review Notes:</h3>
+                                <ul id="reviewNotesList" class="list-none space-y-3 text-gray-300 text-sm">
+                                    <!-- Notes injected by JS -->
+                                </ul>
+                            </div>
+                            
+                        </div>
                     </div>
                 </div>
+                <!-- END FLIPPER -->
+
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                    <!-- Phrase cards will be injected here -->
+                </div>
                 
-                <!-- NEW CONTAINER FOR TRANSLATIONS BELOW THE CARDS -->
                 <div id="translationDisplayContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto mt-2 min-h-[50px]">
                     <!-- Translation text fields will be injected here by renderScene() -->
                 </div>
 
                 <div id="feedbackMessage" class="mt-6 text-2xl font-bold transition-opacity duration-300 opacity-0 min-h-[40px]"></div>
                 
+                <!-- NEW REVIEW BUTTON -->
+                <button id="reviewPhraseButton" class="btn-secondary w-full max-w-lg mt-4 hidden" onclick="flipCard()">
+                    <i class="fas fa-book-open mr-2"></i> Review Phrase Details
+                </button>
+
                 <!-- Continue Button shown after correct answer -->
                 <button id="continueButton" class="btn-primary w-full max-w-lg mt-6 hidden" onclick="nextScene()" style="background-color: var(--primary-red); box-shadow: 0 4px var(--danger-red);">
                     Continue Touring (1/5 Scenes)
@@ -617,7 +772,7 @@
             <!-- 7. PROFILE SCREEN -->
             <!-- ============================================== -->
             <div id="profileScreen" class="game-screen hidden">
-                 <h2 class="text-4xl font-bold mb-8">Traveler Profile</h2>
+               <h2 class="text-4xl font-bold mb-8">Traveler Profile</h2>
                 <div class="max-w-sm mx-auto space-y-4">
                     <div class="text-lg font-light mb-4">
                         <p style="color: var(--text-light)">User ID: <span id="profileUserId" class="font-mono text-sm text-yellow-400">Loading...</span></p>
@@ -644,8 +799,8 @@
                     <div class="p-6 rounded-lg border" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
                         <h3 class="text-xl font-medium mb-4" style="color: var(--text-light)">Share your thoughts on GTA!</h3>
                         <textarea id="feedbackInput" rows="6" placeholder="Tell us what you love, what you hate, or report a bug..."
-                                  class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" 
-                                  style="background-color: var(--card-dark); resize: none;"></textarea>
+                                     class="w-full p-3 rounded text-white placeholder-gray-400 border border-gray-700 focus:border-red-500 focus:ring-red-500" 
+                                     style="background-color: var(--card-dark); resize: none;"></textarea>
                         
                         <p id="feedbackMessageDisplay" class="text-sm font-medium text-red-400 min-h-[1.5em] mt-2"></p>
                         
@@ -783,6 +938,9 @@
         // NEW SETTINGS ELEMENTS
         const closeSettingsButton = document.getElementById('closeSettingsButton'); // NEW
         const settingsBackToTitleButton = document.getElementById('settingsBackToTitleButton'); // NEW ID FOR EXISTING BUTTON
+        
+        // NEW REVIEW BUTTON ELEMENT
+        const reviewPhraseButton = document.getElementById('reviewPhraseButton');
 
 
         // --- GAME STATE ---
@@ -794,8 +952,117 @@
         let isReviewMode = false; // NEW: Global state to track review mode
         let previousScreenId = 'loginScreen'; // NEW: Track where we came from
 
+        // --- REVIEW CARD DATA (FOR INTERACTIVE BACK FACE) ---
+        // This data holds the segmented structure for the interactive review card.
+        const REVIEW_CARD_DATA = {
+            "japan-discovery-0": { // Scene 1: 荷物はどこですか
+                phrase: "荷物はどこですか",
+                romaji: "Nimotsu wa doko desu ka",
+                fullAudio: "nimotsu.mp3",
+                segments: [
+                    { text: "荷物", pronunciation: "Nimotsu", category: 'baggage' },
+                    { text: "は", pronunciation: "wa", category: 'particle-wa' },
+                    { text: "どこ", pronunciation: "doko", category: 'where' },
+                    { text: "です", pronunciation: "desu", category: 'is' },
+                    { text: "か", pronunciation: "ka", category: 'is' }
+                ],
+                groups: [
+                    { name: "Baggage", segmentCategory: 'baggage', audioText: "荷物", color: 'rose' },
+                    { name: "Topic (wa)", segmentCategory: 'particle-wa', audioText: "は", color: 'gray' },
+                    { name: "Where", segmentCategory: 'where', audioText: "どこ", color: 'green' },
+                    { name: "Is (Q)", segmentCategory: 'is', audioText: "ですか", color: 'purple' }
+                ],
+                notes: [
+                    // Updated notes based on user feedback
+                    { title: "Baggage (nimotsu)", detail: "A simple noun meaning \"luggage\" or \"baggage\"." },
+                    { title: "Particle WA", detail: "The particle **WA** sets the topic of the sentence (nimotsu wa...). It is pronounced 'wa' and is essential for structure." },
+                    { title: "Where (doko)", detail: "A question word used to ask for the location of a person or object." },
+                    { title: "Is (Question) (desu ka)", detail: "**desu** is the polite copula (\"is/am/are\"). **ka** is the mandatory question marker." }
+                ]
+            },
+            "japan-discovery-1": { // Scene 2: ホテルまでお願いします (To the hotel, please.)
+                phrase: "ホテルまでお願いします",
+                romaji: "Hoteru made onegaishimasu",
+                fullAudio: "hoteru.mp3",
+                segments: [
+                    { text: "ホテル", pronunciation: "Hoteru", category: 'hotel' },
+                    { text: "まで", pronunciation: "made", category: 'to-particle' },
+                    { text: "おねがいします", pronunciation: "onegaishimasu", category: 'request' }
+                ],
+                groups: [
+                    { name: "Hotel", segmentCategory: 'hotel', audioText: "ホテル", color: 'rose' },
+                    { name: "To/Until (made)", segmentCategory: 'to-particle', audioText: "まで", color: 'gray' },
+                    { name: "Please Request", segmentCategory: 'request', audioText: "お願いします", color: 'green' }
+                ],
+                notes: [
+                    { title: "Hotel (hoteru)", detail: "This is a noun borrowed from English (wasei-eigo)." },
+                    { title: "To/Until (made)", detail: "This particle indicates the destination or end point of movement/time. It means 'to' or 'up until'." },
+                    { title: "Please (onegaishimasu)", detail: "This is a polite form used for requests, meaning 'I request this' or 'please do this for me'." }
+                ]
+            },
+            "japan-discovery-2": { // Scene 3: チェックインをお願いします (Check-in, please.)
+                phrase: "チェックインをお願いします",
+                romaji: "Chekku in o onegaishimasu",
+                fullAudio: "checkin.mp3",
+                segments: [
+                    { text: "チェックイン", pronunciation: "Chekku in", category: 'checkin-noun' },
+                    { text: "を", pronunciation: "o", category: 'o-particle' },
+                    { text: "おねがいします", pronunciation: "onegaishimasu", category: 'request' }
+                ],
+                groups: [
+                    { name: "Check-in", segmentCategory: 'checkin-noun', audioText: "チェックイン", color: 'rose' },
+                    { name: "Object (o)", segmentCategory: 'o-particle', audioText: "を", color: 'gray' },
+                    { name: "Please Request", segmentCategory: 'request', audioText: "お願いします", color: 'green' }
+                ],
+                notes: [
+                    { title: "Check-in (chekku in)", detail: "A noun borrowed from English. You can use this for hotel check-in." },
+                    { title: "Object (o)", detail: "This particle marks the preceding noun ('check-in') as the direct object of the verb." },
+                    { title: "Please (onegaishimasu)", detail: "Polite form used for requests, meaning 'I request this' or 'please do this for me'." }
+                ]
+            },
+            "japan-discovery-3": { // Scene 4: お腹が空きました (I'm hungry.)
+                phrase: "お腹が空きました",
+                romaji: "Onaka ga sukimashita",
+                fullAudio: "hungry.mp3",
+                segments: [
+                    { text: "お腹", pronunciation: "Onaka", category: 'stomach' },
+                    { text: "が", pronunciation: "ga", category: 'ga-particle' },
+                    { text: "空きました", pronunciation: "sukimashita", category: 'hungry-verb' }
+                ],
+                groups: [
+                    { name: "Stomach", segmentCategory: 'stomach', audioText: "お腹", color: 'rose' },
+                    { name: "Subject (ga)", segmentCategory: 'ga-particle', audioText: "が", color: 'gray' },
+                    { name: "Became Empty", segmentCategory: 'hungry-verb', audioText: "空きました", color: 'green' }
+                ],
+                notes: [
+                    { title: "Stomach (onaka)", detail: "Polite term for 'stomach' or 'belly'." },
+                    { title: "Subject (ga)", detail: "This particle marks the subject. It is specifically used with descriptive verbs like *sukimasu*." },
+                    { title: "Became Empty (sukimashita)", detail: "This is the past tense of *suku* (to become empty). The phrase literally means 'my stomach became empty'." }
+                ]
+            },
+            "japan-discovery-4": { // Scene 5: ラーメンをください (Ramen, please.)
+                phrase: "ラーメンをください",
+                romaji: "Rāmen o kudasai",
+                fullAudio: "ramen.mp3",
+                segments: [
+                    { text: "ラーメン", pronunciation: "Rāmen", category: 'ramen-noun' },
+                    { text: "を", pronunciation: "o", category: 'o-particle' },
+                    { text: "ください", pronunciation: "kudasai", category: 'give-request' }
+                ],
+                groups: [
+                    { name: "Ramen", segmentCategory: 'ramen-noun', audioText: "ラーメン", color: 'rose' },
+                    { name: "Object (o)", segmentCategory: 'o-particle', audioText: "を", color: 'gray' },
+                    { name: "Please Give", segmentCategory: 'give-request', audioText: "ください", color: 'green' }
+                ],
+                notes: [
+                    { title: "Ramen (rāmen)", detail: "A noun referring to the dish." },
+                    { title: "Object (o)", detail: "This particle marks the direct object, indicating that the 'ramen' is what you are requesting." },
+                    { title: "Please Give (kudasai)", detail: "A direct, polite request used when asking for an item or service ('Please give me...')." }
+                ]
+            }
+        };
+
         // --- GAME DATA STRUCTURE (The Core Content) ---
-        // Refactored Japanese data to separate Romanization and Translation for UX goal.
         const GAME_DATA = {
             japan: {
                 name: "Japan",
@@ -810,54 +1077,54 @@
                         badgeName: "Sakura Badge",
                         rank: "Traveler",
                         scenes: [
-                            // Scene 1: direction to baggage (Correct: 荷物はどこですか？)
+                            // Scene 1: Find luggage (Correct: 荷物はどこですか)
                             {
                                 image: "https://i.imgur.com/TzGpTBn.jpeg",
                                 prompt: "You've just landed in Tokyo and need to find your luggage. What do you say to the airport staff?",
                                 options: [
-                                    { phrase: "これはいくらですか？", romanization: "Kore wa ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false },
-                                    { phrase: "荷物はどこですか？", romanization: "Nimotsu wa doko desu ka?", translation: "Where is the baggage?", audio: "nimotsu.mp3", isCorrect: true },
-                                    { phrase: "トイレはどこですか？", romanization: "Toire wa doko desu ka?", translation: "Where is the toilet?", audio: "taxistand.mp3", isCorrect: false }
+                                    { phrase: "これはいくらですか", romanization: "Kore wa ikura desu ka", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false },
+                                    { phrase: "荷物はどこですか", romanization: "Nimotsu wa doko desu ka", translation: "Where is the luggage?", audio: "nimotsu.mp3", isCorrect: true }, // Updated translation
+                                    { phrase: "トイレはどこですか", romanization: "Toire wa doko desu ka", translation: "Where is the restroom?", audio: "toire.mp3", isCorrect: false } // Updated translation
                                 ]
                             },
-                            // Scene 2: direction to hotel (Correct: ホテルまでお願いします)
+                            // Scene 2: Go to the hotel (Correct: ホテルまでお願いします)
                             {
                                 image: "https://i.imgur.com/dYv5NiI.jpeg",
                                 prompt: "You're at the taxi stand. Tell the driver you need to go to the hotel.",
                                 options: [
-                                    { phrase: "荷物はどこですか？", romanization: "Nimotsu wa doko desu ka?", translation: "Where is the baggage?", audio: "nimotsu.mp3", isCorrect: false },
-                                    { phrase: "タクシー乗り場は？", romanization: "Takushii noriba wa?", translation: "Where is the taxi stand?", audio: "taxistand.mp3", isCorrect: false },
-                                    { phrase: "ホテルまでお願いします。", romanization: "Hoteru made onegaishimasu.", translation: "Please take me to my hotel.", audio: "hoteru.mp3", isCorrect: true }
+                                    { phrase: "荷物はどこですか", romanization: "Nimotsu wa doko desu ka", translation: "Where is the luggage?", audio: "nimotsu.mp3", isCorrect: false }, // Updated translation
+                                    { phrase: "タクシー乗り場はどこですか", romanization: "Takushī noriba wa doko desu ka", translation: "Where is the taxi stand?", audio: "taxistand.mp3", isCorrect: false }, // Updated translation
+                                    { phrase: "ホテルまでお願いします", romanization: "Hoteru made onegaishimasu", translation: "To the hotel, please.", audio: "hoteru.mp3", isCorrect: true } // Updated translation
                                 ]
                             },
-                            // Scene 3: check in (Correct: チェックインをお願いします)
+                            // Scene 3: Check in (Correct: チェックインをお願いします)
                             {
                                 image: "https://i.imgur.com/7O21k67.jpeg",
                                 prompt: "You've arrived! Tell the front desk you are here to check in.",
                                 options: [
-                                    { phrase: "いくらですか？", romanization: "Ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false },
-                                    { phrase: "チェックインをお願いします。", romanization: "Chekkuin o onegaishimasu.", translation: "I am here to check in.", audio: "checkin.mp3", isCorrect: true },
-                                    { phrase: "予約があります。", romanization: "Yoyaku ga arimasu.", translation: "I have a reservation.", audio: "reservation.mp3", isCorrect: false }
+                                    { phrase: "予約をしました", romanization: "Yoyaku o shimashita", translation: "I made a reservation.", audio: "reservation.mp3", isCorrect: false }, // NEW: Added reservation option
+                                    { phrase: "チェックインをお願いします", romanization: "Chekku in o onegaishimasu", translation: "Check-in, please.", audio: "checkin.mp3", isCorrect: true }, // Updated translation
+                                    { phrase: "これはいくらですか", romanization: "Kore wa ikura desu ka", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false } // Updated translation (and replaced old option)
                                 ]
                             },
-                            // Scene 4: I am hungry (Correct: お腹が空きました)
+                            // Scene 4: Find food (Correct: お腹が空きました)
                             {
                                 image: "https://i.imgur.com/W1oNh8L.jpeg",
                                 prompt: "You are finally in your room, but you're starving. Tell the concierge you are hungry.",
                                 options: [
-                                    { phrase: "レストランは？", romanization: "Resutoran wa?", translation: "Where is the restaurant?", audio: "restaurant.mp3", isCorrect: false },
-                                    { phrase: "お腹が空きました。", romanization: "Onaka ga sukimashita.", translation: "I am hungry.", audio: "hungry.mp3", isCorrect: true },
-                                    { phrase: "チェックをお願いします。", romanization: "Chekku o onegaishimasu。", translation: "Check, please.", audio: "checkplease.mp3", isCorrect: false }
+                                    { phrase: "美味しいレストランはどこですか", romanization: "Oishī resutoran wa doko desu ka", translation: "Where is a good restaurant?", audio: "restaurant.mp3", isCorrect: false }, // Updated translation
+                                    { phrase: "お腹が空きました", romanization: "Onaka ga sukimashita", translation: "I'm hungry.", audio: "hungry.mp3", isCorrect: true }, // Updated translation
+                                    { phrase: "お会計をお願いします", romanization: "Okaikei o onegaishimasu", translation: "The check, please.", audio: "checkplease.mp3", isCorrect: false } // Updated translation
                                 ]
                             },
-                            // Scene 5: I want ramen (Correct: ラーメンをお願いします)
+                            // Scene 5: Order ramen (Correct: ラーメンをください)
                             {
                                 image: "https://i.imgur.com/xHASNyg.jpeg",
                                 prompt: "You found a ramen shop! Order a bowl of ramen.",
                                 options: [
-                                    { phrase: "ラーメンをお願いします。", romanization: "Raamen o onegaishimasu。", translation: "Ramen, please.", audio: "ramen.mp3", isCorrect: true },
-                                    { phrase: "元気ですか？", romanization: "Genki desu ka?", translation: "How are you?", audio: "genki.mp3", isCorrect: false },
-                                    { phrase: "いくらですか？", romanization: "Ikura desu ka?", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false }
+                                    { phrase: "ラーメンをください", romanization: "Rāmen o kudasai", translation: "Ramen, please.", audio: "ramen.mp3", isCorrect: true }, // Updated translation
+                                    { phrase: "元気ですか", romanization: "Genki desu ka", translation: "How are you?", audio: "genki.mp3", isCorrect: false }, // Updated translation
+                                    { phrase: "これはいくらですか", romanization: "Kore wa ikura desu ka", translation: "How much is this?", audio: "ikura.mp3", isCorrect: false } // Updated translation
                                 ]
                             },
                         ]
@@ -1019,9 +1286,9 @@
                 
                 isFirebaseReady = true; // Set flag only after auth is successfully defined
 
-                const authStatusEl = document.getElementById('authStatus');
-
                 onAuthStateChanged(auth, async (user) => {
+                    const authStatusEl = document.getElementById('authStatus');
+
                     if (user) {
                         // User is signed in (Email/Password or Custom Token). Go to Title Screen and load data.
                         userId = user.uid;
@@ -1150,7 +1417,7 @@
             if (currentScreen) {
                 // Only update previousScreenId if we are navigating away from the Settings screen back to a game state
                 if (currentScreen.id !== 'settingsScreen') {
-                     previousScreenId = currentScreen.id;
+                    previousScreenId = currentScreen.id;
                 }
             }
 
@@ -1322,6 +1589,97 @@
             switchScreen('adventureScreen');
         }
 
+        // NEW: Flip Card function
+        function flipCard() {
+            const flipperContainer = document.getElementById('sceneFlipperContainer');
+            flipperContainer.classList.toggle('is-flipped');
+        }
+        
+        // NEW: Highlighting Logic for Review Card
+        function highlightSegments(category, shouldHighlight) {
+            const segments = document.querySelectorAll('#reviewSegments .phrase-segment');
+            segments.forEach(segment => {
+                if (shouldHighlight && segment.classList.contains(category)) {
+                    segment.classList.add('highlighted');
+                } else {
+                    segment.classList.remove('highlighted');
+                }
+            });
+        }
+
+        // NEW: Renders the full interactive review card content
+        function renderReviewCard(sceneDataId) {
+            const data = REVIEW_CARD_DATA[sceneDataId];
+            if (!data) return; // Should not happen if REVIEW_CARD_DATA is complete
+
+            const segmentsEl = document.getElementById('reviewSegments');
+            const buttonsEl = document.getElementById('reviewColorButtons');
+            const notesEl = document.getElementById('reviewNotesList');
+            const fullPhraseButton = document.getElementById('reviewFullPhraseButton'); // RESTORED
+
+            segmentsEl.innerHTML = '';
+            buttonsEl.innerHTML = '';
+            notesEl.innerHTML = '';
+            
+            // 1. Render Segments (Kanji/Romaji breakdown)
+            data.segments.forEach(segment => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'segment-group';
+
+                const span = document.createElement('span'); 
+                span.className = `phrase-segment ${segment.category}`;
+                span.textContent = segment.text;
+
+                const romajiDiv = document.createElement('div');
+                romajiDiv.className = 'segment-romaji';
+                romajiDiv.textContent = segment.pronunciation;
+
+                groupDiv.appendChild(span);
+                groupDiv.appendChild(romajiDiv);
+                segmentsEl.appendChild(groupDiv);
+            });
+
+            // 2. Render Color Buttons (Interactive play/highlight)
+            data.groups.forEach(group => {
+                const button = document.createElement('button');
+                button.className = `review-btn-pill ${group.color} text-xs`;
+                button.textContent = group.name;
+                button.dataset.category = group.segmentCategory;
+
+                // Wire up click event for highlighting and audio
+                button.addEventListener('click', (e) => {
+                    const category = e.currentTarget.dataset.category;
+                    const fullAudioPath = audioPath(data.fullAudio); 
+                    
+                    // 1. Highlight Segments
+                    highlightSegments(category, true);
+
+                    // 2. Play Audio (Simulating single audio file for simplicity)
+                    // NOTE: In a full implementation, you would trigger segment audio playback here.
+                    playAudio(fullAudioPath);
+
+                    // 3. Un-highlight after a short delay (visual feedback)
+                    setTimeout(() => highlightSegments(category, false), 1500); 
+                });
+
+                buttonsEl.appendChild(button);
+            });
+            
+            // 3. Set Full Phrase Button Audio (RESTORED)
+            fullPhraseButton.onclick = () => playAudio(audioPath(data.fullAudio));
+
+
+            // 4. Render Notes (Updated structure)
+            data.notes.forEach(note => {
+                const li = document.createElement('li');
+                // Use a combination of text and HTML for bold formatting in the detail
+                li.innerHTML = `<span class="font-bold text-red-400 block">${note.title}</span>
+                                <p class="pl-2">${note.detail.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>`;
+                notesEl.appendChild(li);
+            });
+        }
+
+
         function startAdventure(adventureIndex) {
             currentAdventureIndex = adventureIndex;
             const dest = GAME_DATA[currentDestinationId];
@@ -1339,20 +1697,20 @@
             
             // CHECK 1: If the adventure has no content (empty scenes array), show the message.
             if (!adventure.scenes || adventure.scenes.length === 0) {
-                   // Use the modal (which is better than alert()) to show the "Under Construction" message
-                   modalEl.querySelector('h3').textContent = "Under Construction";
-                   document.getElementById('modalLevelMessage').textContent = `This adventure, ${adventure.name}, is currently under construction. Please check back soon!`;
-                   
-                   // Display only the "Continue" (Close) button for construction message
-                   modalReplayButton.classList.add('hidden');
-                   modalRevisitButton.classList.add('hidden');
-                   closeBadgeModalButton.classList.remove('hidden');
-                   closeBadgeModalButton.textContent = "Close";
-                   closeBadgeModalButton.classList.remove('bg-red-500', 'shadow-red-700');
-                   closeBadgeModalButton.classList.add('bg-gray-500', 'hover:bg-gray-600', 'shadow-gray-700');
+                     // Use the modal (which is better than alert()) to show the "Under Construction" message
+                    modalEl.querySelector('h3').textContent = "Under Construction";
+                    document.getElementById('modalLevelMessage').textContent = `This adventure, ${adventure.name}, is currently under construction. Please check back soon!`;
+                    
+                    // Display only the "Continue" (Close) button for construction message
+                    modalReplayButton.classList.add('hidden');
+                    modalRevisitButton.classList.add('hidden');
+                    closeBadgeModalButton.classList.remove('hidden');
+                    closeBadgeModalButton.textContent = "Close";
+                    closeBadgeModalButton.classList.remove('bg-red-500', 'shadow-red-700');
+                    closeBadgeModalButton.classList.add('bg-gray-500', 'hover:bg-gray-600', 'shadow-gray-700');
 
-                   modalEl.classList.remove('hidden');
-                   return;
+                    modalEl.classList.remove('hidden');
+                    return;
             }
 
             // CHECK 2: If the adventure has content, start the game.
@@ -1366,6 +1724,10 @@
             const adventure = dest.adventures[currentAdventureIndex];
             const scene = adventure.scenes[currentSceneIndex];
             
+            // NEW: Reset flip card state at start of scene
+            document.getElementById('sceneFlipperContainer').classList.remove('is-flipped'); 
+            document.getElementById('reviewPhraseButton').classList.add('hidden'); // Hide review button
+
             // Update Headers (image_4b52b2.jpg style)
             document.getElementById('sceneAdventureName').textContent = `${adventure.name} Scenario`;
             document.getElementById('sceneHeader').textContent = `Country: ${dest.name} | Adventure ${currentAdventureIndex + 1}`;
@@ -1535,9 +1897,25 @@
                      showFeedback("Correct! You successfully communicated the phrase.", 'correct');
                 }
                 
-                // Show continue button
+                // Show continue button and populate review card
                 const dest = GAME_DATA[currentDestinationId];
                 const adventure = dest.adventures[currentAdventureIndex];
+
+                // Determine unique scene ID for review data lookup
+                const sceneDataId = `${currentDestinationId}-${adventure.id}-${currentSceneIndex}`;
+                
+                // RENDER INTERACTIVE REVIEW CARD DETAILS (if data exists)
+                if (REVIEW_CARD_DATA[sceneDataId]) {
+                    renderReviewCard(sceneDataId);
+                    document.getElementById('reviewPhraseButton').classList.remove('hidden'); // Show new review button
+                } else {
+                    // Fallback: Use simple correct phrase text if no segmented data exists (e.g., for future scenes)
+                    document.getElementById('reviewPhraseButton').classList.add('hidden'); 
+                    // Show message that deep dive review isn't ready
+                    console.log(`Review data not found for scene ${sceneDataId}.`);
+                }
+
+
                 
                 if (currentSceneIndex < adventure.scenes.length - 1) {
                     document.getElementById('continueButton').textContent = `Continue Touring (${currentSceneIndex + 1}/${adventure.scenes.length} Scenes)`;
@@ -1592,6 +1970,10 @@
                 }
             }
             // *** END Conditional Save (No badge saving if isReviewMode is true) ***
+            
+            // Reset flip card state before modal/screen change
+            document.getElementById('sceneFlipperContainer').classList.remove('is-flipped');
+            document.getElementById('reviewPhraseButton').classList.add('hidden');
             
             // Hide continue/complete buttons from game scene
             document.getElementById('continueButton').classList.add('hidden');
@@ -1882,6 +2264,7 @@
             window.nextScene = nextScene;
             window.completeAdventure = completeAdventure;
             window.handleSignOut = handleSignOut; // Expose global sign out function
+            window.flipCard = flipCard; // Expose flipCard function
 
             // Handle all 'Back' buttons and View Progress button
             document.querySelectorAll('button[data-target]').forEach(button => {
