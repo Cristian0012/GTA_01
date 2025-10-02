@@ -502,7 +502,9 @@
                 <p id="scenePrompt" class="text-xl font-medium mb-6 text-left" style="color: var(--text-light)">You've just landed in Tokyo and need to find your luggage. What do you say to the airport staff?</p>
                 
                 <div id="sceneContainer" class="max-w-4xl mx-auto p-6 rounded-xl shadow-2xl border-4" style="background-color: var(--background-deep); border-color: var(--text-secondary)">
-                    <img id="sceneImage" src="" alt="Current Scene" class="w-full h-auto rounded-lg mb-6 border-2" style="border-color: var(--text-secondary)">
+                    <div class="relative w-full overflow-hidden rounded-lg mb-6 border-2 flex items-center justify-center" style="height: 450px; border-color: var(--text-secondary);">
+    <img id="sceneImage" src="" alt="Current Scene" class="w-full h-full object-cover" style="object-position: center;">
+</div>
                     
                     <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <!-- Phrase cards will be injected here -->
