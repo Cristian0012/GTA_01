@@ -1607,6 +1607,30 @@
             });
         }
 
+        // NEW: Native browser TTS function for instant segment pronunciation
+        function playNativeTTS(text) {
+            const audioSettings = userProgress.settings || { audioVolume: 1.0, audioMuted: false };
+            if (audioSettings.audioMuted) return;
+
+            // Stop any existing TTS speech
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            // Attempt to set a Japanese voice, but fallback is fine if not available
+            const voices = window.speechSynthesis.getVoices();
+            const japaneseVoice = voices.find(voice => voice.lang === 'ja-JP');
+            if (japaneseVoice) {
+                utterance.voice = japaneseVoice;
+            } else {
+                utterance.lang = 'ja-JP'; // Request Japanese language
+            }
+            
+            utterance.rate = 1.0; // Normal speed
+            utterance.volume = audioSettings.audioVolume; // Use volume setting
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
         // NEW: Renders the full interactive review card content
         function renderReviewCard(sceneDataId) {
             const data = REVIEW_CARD_DATA[sceneDataId];
@@ -1645,18 +1669,19 @@
                 button.className = `review-btn-pill ${group.color} text-xs`;
                 button.textContent = group.name;
                 button.dataset.category = group.segmentCategory;
+                // Use the segment text (Japanese phrase) for native TTS pronunciation
+                const segmentText = data.segments.filter(s => s.category === group.segmentCategory).map(s => s.text).join(' ');
+
 
                 // Wire up click event for highlighting and audio
                 button.addEventListener('click', (e) => {
                     const category = e.currentTarget.dataset.category;
-                    const fullAudioPath = audioPath(data.fullAudio); 
                     
                     // 1. Highlight Segments
                     highlightSegments(category, true);
 
-                    // 2. Play Audio (Simulating single audio file for simplicity)
-                    // NOTE: In a full implementation, you would trigger segment audio playback here.
-                    playAudio(fullAudioPath);
+                    // 2. NEW: Play Native TTS for the segment
+                    playNativeTTS(segmentText);
 
                     // 3. Un-highlight after a short delay (visual feedback)
                     setTimeout(() => highlightSegments(category, false), 1500); 
